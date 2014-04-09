@@ -1,0 +1,205 @@
+// Copyright (c) 2014 Jihyeok Park
+// KAIST CS420 Project
+
+import java_cup.runtime.*;
+import java.io.*;
+import java.util.*;
+
+action code {:
+:}
+
+parser code {:
+    /* this part is included in the parser class */
+    public static void main (String args[]) throws Exception{
+        new parser(new Yylex(System.in)).parse();
+    }
+:}
+
+terminal UMINUS, MULT,DIV,PLUS,MINUS,LT,GT,LTE,GTE,EQ,NEQ;
+terminal ASSIGN,LPAREN,RPAREN,LBRACE,RBRACE,LSBRACE,RSBRACE,COMMA,SEMI, COLON;
+terminal INT,FLOAT,RETURN,WHILE,DO,FOR,IF,ELSE,SWITCH,CASE,DEFAULT,BREAK;
+terminal Integer    INTNUM;
+terminal Float      FLOATNUM;
+terminal String     ID;
+
+non terminal Program        program;
+non terminal DeclList       decl_list;
+non terminal FuncList       func_list;
+non terminal Decl           decl;
+non terminal IdentList      ident_list;
+non terminal Ident          ident;
+non terminal Func           func;
+non terminal ParamList      param_list;
+non terminal Type           type;
+non terminal CompStmt       comp_stmt;
+non terminal StmtList       stmt_list;
+non terminal Stmt           stmt;
+non terminal AssignStmt     assign_stmt;
+non terminal Assign         assign;
+non terminal CallStmt       call_stmt;
+non terminal Call           call;
+non terminal RetStmt        ret_stmt;
+non terminal WhileStmt      while_stmt;
+non terminal ForStmt        for_stmt;
+non terminal IfStmt         if_stmt;
+non terminal SwitchStmt     switch_stmt;
+non terminal CaseList       case_list;
+non terminal CaseStmt       case_stmt;
+non terminal DefaultStmt    default_stmt;
+non terminal Expr           expr;
+non terminal ArgList        arg_list;
+
+precedence right    ASSIGN;
+precedence left     EQ, NEQ;
+precedence left     GT, LT, GTE, LTE;
+precedence left     PLUS, MINUS;
+precedence left     MULT, DIV;
+precedence right    UMINUS;
+precedence left     LPAREN, RPAREN;
+
+program ::= 
+        |   decl_list
+        |   func_list
+        |   decl_list func_list
+        ;
+
+decl_list ::=
+            decl
+        |   decl_list decl
+        ;
+
+func_list ::=
+            func
+        |   func_list func
+        ;
+
+decl ::=
+            type ident_list
+        ;
+
+ident_list ::=
+            ident
+        |   ident_list COMMA ident
+        ;
+
+ident ::=
+            ID
+        |   ID LSBRACE INTNUM RSBRACE
+        ;
+
+func ::=
+            type ID LPAREN RPAREN comp_stmt
+        |   type ID LPAREN param_list RPAREN comp_stmt
+        ;
+
+param_list ::=
+            type ident
+        |   param_list COMMA type ident
+        ;
+
+type ::=
+            INT
+        |   FLOAT
+        ;
+
+comp_stmt ::=
+            LBRACE stmt_list RBRACE
+        |   LBRACE decl_list stmt_list RBRACE
+        ;
+
+stmt_list ::=
+        |   stmt_list stmt
+        ;
+
+stmt ::=
+            assign_stmt
+        |   call_stmt
+        |   ret_stmt
+        |   while_stmt
+        |   for_stmt
+        |   if_stmt
+        |   switch_stmt
+        |   comp_stmt
+        |   SEMI
+        ;
+
+assign_stmt ::=
+            assign SEMI
+        ;
+
+assign ::=
+            ID ASSIGN expr
+        |   ID LSBRACE expr RSBRACE ASSIGN expr
+        ;
+
+call_stmt ::=
+            call SEMI
+        ;
+
+call ::=
+            ID LPAREN RPAREN
+        |   ID LPAREN arg_list RPAREN
+        ;
+
+ret_stmt ::=
+            RETURN SEMI
+        |   RETURN expr SEMI
+        ;
+
+while_stmt ::=
+            WHILE LPAREN expr RPAREN stmt
+        |   DO stmt WHILE LPAREN expr RPAREN
+        ;
+
+for_stmt ::=
+            FOR LPAREN assign SEMI expr SEMI assign RPAREN stmt
+        ;
+
+if_stmt ::=
+            IF LPAREN expr RPAREN stmt
+        |   IF LPAREN expr RPAREN stmt ELSE stmt
+        ;
+
+switch_stmt ::=
+            SWITCH LPAREN ident RPAREN LBRACE case_list RBRACE
+        |   SWITCH LPAREN ident RPAREN LBRACE case_list default_stmt RBRACE
+        ;
+
+case_list ::=
+        |   case_list case_stmt
+        ;
+
+case_stmt ::=
+            CASE INTNUM COLON stmt_list
+        |   CASE INTNUM COLON stmt_list BREAK SEMI
+        ;
+
+default_stmt ::=
+            DEFAULT COLON stmt_list
+        |   DEFAULT COLON stmt_list BREAK SEMI
+        ;
+
+expr ::=
+            UMINUS expr
+        |   expr MULT expr
+        |   expr DIV expr
+        |   expr PLUS expr
+        |   expr MINUS expr
+        |   expr GT expr
+        |   expr LT expr
+        |   expr GTE expr
+        |   expr LTE expr
+        |   expr EQ expr
+        |   expr NEQ expr
+        |   call
+        |   INTNUM
+        |   FLOATNUM
+        |   ID
+        |   ID LSBRACE expr RSBRACE
+        |   LPAREN expr RPAREN
+        ;
+
+arg_list ::=
+            expr
+        |   arg_list COMMA expr
+        ;
