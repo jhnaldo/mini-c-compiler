@@ -1,0 +1,10 @@
+This is an interpretter for a subset of the PL/0 language 
+(http://en.wikipedia.org/wiki/PL/0)
+
+It is meant only as a demonstration of the JLex and Java CUP utilities.
+
+To use:
+
+make init
+make all
+make run < inputfile
