@@ -30,6 +30,7 @@ non terminal IdentList      ident_list;
 non terminal Ident          ident;
 non terminal Func           func;
 non terminal ParamList      param_list;
+non terminal Param          param;
 non terminal Type           type;
 non terminal CompStmt       comp_stmt;
 non terminal StmtList       stmt_list;
@@ -58,125 +59,181 @@ precedence right    UMINUS;
 precedence left     LPAREN, RPAREN;
 
 program ::= 
-        |   decl_list
-        |   func_list
-        |   decl_list func_list
+        |   decl_list:dl
+            {: Program p = new Program(dl, null); :}
+        |   func_list:fl
+            {: Program p = new Program(null, fl); :}
+        |   decl_list:dl func_list:fl
+            {: Program p = new Program(dl, fl); :}
         ;
 
 decl_list ::=
-            decl
-        |   decl_list decl
+            decl:d
+            {: RESULT = new DeclList(d); :}
+        |   decl_list:dl decl:d
+            {: dl.add(d); RESULT = dl; :}
         ;
 
 func_list ::=
-            func
-        |   func_list func
+            func:f
+            {: RESULT = new FuncList(f); :}
+        |   func_list:fl func:f
+            {: fl.add(f); RESULT = fl; :}
         ;
 
 decl ::=
-            type ident_list
+            type:t ident_list:idl
+            {: RESULT = new Decl(t,idl); :}
         ;
 
 ident_list ::=
-            ident
-        |   ident_list COMMA ident
+            ident:id
+            {: RESULT = new IdentList(id); :}
+        |   ident_list:idl COMMA ident:id
+            {: idl.add(id); RESULT = idl; :}
         ;
 
 ident ::=
-            ID
-        |   ID LSBRACE INTNUM RSBRACE
+            ID:id
+            {: RESULT = new SingleIdent(id); :}
+        |   ID:id LSBRACE INTNUM:k RSBRACE
+            {: RESULT = new ArrayIdent(id,k); :}
         ;
 
 func ::=
-            type ID LPAREN RPAREN comp_stmt
-        |   type ID LPAREN param_list RPAREN comp_stmt
+            type:t ID:fn LPAREN RPAREN comp_stmt:cs
+            {: RESULT = new Func(t,fn,null,cs); :}
+        |   type:t ID:fn LPAREN param_list:pl RPAREN comp_stmt:cs
+            {: RESULT = new Func(t,fn,pl,cs); :}
         ;
 
 param_list ::=
-            type ident
-        |   param_list COMMA type ident
+            param:p
+            {: RESULT = new ParamList(p); :}
+        |   param_list:pl COMMA param:p
+            {: pl.add(p); RESULT = pl; :}
+        ;
+
+param ::=
+            type:t ident:id
+            {: RESULT = new Param(t,id); :}
         ;
 
 type ::=
             INT
+            {: RESULT = new Type(0); :}
         |   FLOAT
+            {: RESULT = new Type(1); :}
         ;
 
 comp_stmt ::=
-            LBRACE stmt_list RBRACE
-        |   LBRACE decl_list stmt_list RBRACE
+            LBRACE stmt_list:sl RBRACE
+            {: RESULT = new CompStmt(null, sl); :}
+        |   LBRACE decl_list:dl stmt_list:sl RBRACE
+            {: RESULT = new CompStmt(dl, sl); :}
         ;
 
 stmt_list ::=
-        |   stmt_list stmt
+            {: RESULT = new StmtList(); :}
+        |   stmt_list:sl stmt:s
+            {: if(s!=null) { sl.add(s); } RESULT = sl; :}
         ;
 
 stmt ::=
-            assign_stmt
-        |   call_stmt
-        |   ret_stmt
-        |   while_stmt
-        |   for_stmt
-        |   if_stmt
-        |   switch_stmt
-        |   comp_stmt
+            assign_stmt:as
+            {: RESULT = as; :}
+        |   call_stmt:ca
+            {: RESULT = ca; :}
+        |   ret_stmt:ret
+            {: RESULT = ret; :}
+        |   while_stmt:wh
+            {: RESULT = wh; :}
+        |   for_stmt:for_st
+            {: RESULT = for_st; :}
+        |   if_stmt:if_st
+            {: RESULT = if_st; :}
+        |   switch_stmt:sw
+            {: RESULT = sw; :}
+        |   comp_stmt:cs
+            {: RESULT = cs; :}
         |   SEMI
+            {: RESULT = null; :}
         ;
 
 assign_stmt ::=
-            assign SEMI
+            assign:as SEMI
+            {: RESULT = new AssignStmt(as); :}
         ;
 
 assign ::=
-            ID ASSIGN expr
-        |   ID LSBRACE expr RSBRACE ASSIGN expr
+            ID:id ASSIGN expr:e
+            {: RESULT = new Assign(id,null,e); :}
+        |   ID:id LSBRACE expr:idx RSBRACE ASSIGN expr:e
+            {: RESULT = new Assign(id,idx,e); :}
         ;
 
 call_stmt ::=
-            call SEMI
+            call:c SEMI
+            {: RESULT = new CallStmt(c); :}
         ;
-
 call ::=
-            ID LPAREN RPAREN
-        |   ID LPAREN arg_list RPAREN
+            ID:id LPAREN RPAREN
+            {: RESULT = new Call(id,null); :}
+        |   ID:id LPAREN arg_list:al RPAREN
+            {: RESULT = new Call(id,al); :}
         ;
 
 ret_stmt ::=
             RETURN SEMI
-        |   RETURN expr SEMI
+            {: RESULT = new RetStmt(null); :}
+        |   RETURN expr:e SEMI
+            {: RESULT = new RetStmt(e); :}
         ;
 
 while_stmt ::=
-            WHILE LPAREN expr RPAREN stmt
-        |   DO stmt WHILE LPAREN expr RPAREN
+            WHILE LPAREN expr:e RPAREN stmt:s
+            {: RESULT = new WhileStmt(e,s,false); :}
+        |   DO stmt:s WHILE LPAREN expr:e RPAREN
+            {: RESULT = new WhileStmt(e,s,true); :}
         ;
 
 for_stmt ::=
-            FOR LPAREN assign SEMI expr SEMI assign RPAREN stmt
+            FOR LPAREN assign:init SEMI expr:cond SEMI assign:as RPAREN stmt:st
+            {: RESULT = new ForStmt(init,cond,as,st); :}
         ;
 
 if_stmt ::=
-            IF LPAREN expr RPAREN stmt
-        |   IF LPAREN expr RPAREN stmt ELSE stmt
+            IF LPAREN expr:cond RPAREN stmt:th
+            {: RESULT = new IfStmt(cond,th,null); :}
+        |   IF LPAREN expr:cond RPAREN stmt:th ELSE stmt:el
+            {: RESULT = new IfStmt(cond,th,el); :}
         ;
 
 switch_stmt ::=
-            SWITCH LPAREN ident RPAREN LBRACE case_list RBRACE
-        |   SWITCH LPAREN ident RPAREN LBRACE case_list default_stmt RBRACE
+            SWITCH LPAREN ident:id RPAREN LBRACE case_list:cl RBRACE
+            {: RESULT = new SwitchStmt(id,cl,null); :}
+        |   SWITCH LPAREN ident:id RPAREN LBRACE case_list:cl default_stmt:ds RBRACE
+            {: RESULT = new SwitchStmt(id,cl,ds); :}
         ;
 
 case_list ::=
-        |   case_list case_stmt
+            {: RESULT = new CaseList(); :}
+        |   case_list:cl case_stmt:cs
+            {: cl.add(cs); RESULT = new CaseList(); :}
         ;
 
 case_stmt ::=
-            CASE INTNUM COLON stmt_list
-        |   CASE INTNUM COLON stmt_list BREAK SEMI
+            CASE INTNUM:k COLON stmt_list:sl
+            {: RESULT = new CaseStmt(k,sl,false); :}
+        |   CASE INTNUM:k COLON stmt_list:sl BREAK SEMI
+            {: RESULT = new CaseStmt(k,sl,true); :}
         ;
 
 default_stmt ::=
-            DEFAULT COLON stmt_list
-        |   DEFAULT COLON stmt_list BREAK SEMI
+            DEFAULT COLON stmt_list:sl
+            {: RESULT = new DefaultStmt(sl,false); :}
+        |   DEFAULT COLON stmt_list:sl BREAK SEMI
+            {: RESULT = new DefaultStmt(sl,true); :}
         ;
 
 expr ::=
@@ -200,6 +257,7 @@ expr ::=
         ;
 
 arg_list ::=
-            expr
+            expr:e
+            {: RESULT = new ArgList(e); :}
         |   arg_list COMMA expr
         ;
