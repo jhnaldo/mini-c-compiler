@@ -82,7 +82,7 @@ func_list ::=
         ;
 
 decl ::=
-            type:t ident_list:idl
+            type:t ident_list:idl SEMI
             {: RESULT = new Decl(t,idl); :}
         ;
 
