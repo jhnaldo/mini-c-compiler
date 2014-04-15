@@ -3,7 +3,7 @@
 *.swo
 *.c
 result
-./*.class
-./Yylex.java
-./parser.java
-./sym.java
+*.class
+Yylex.java
+parser.java
+sym.java
