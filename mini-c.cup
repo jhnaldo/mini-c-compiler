@@ -33,20 +33,20 @@ non terminal ParamList      param_list;
 non terminal Type           type;
 non terminal CompStmt       comp_stmt;
 non terminal StmtList       stmt_list;
-non terminal Stmt           stmt;
 non terminal AssignStmt     assign_stmt;
 non terminal Assign         assign;
 non terminal CallStmt       call_stmt;
 non terminal Call           call;
 non terminal RetStmt        ret_stmt;
-non terminal WhileStmt      while_stmt;
-non terminal ForStmt        for_stmt;
-non terminal IfStmt         if_stmt;
 non terminal SwitchStmt     switch_stmt;
 non terminal CaseList       case_list;
 non terminal Expr           expr;
 non terminal ArgList        arg_list;
-non terminal bin_op;
+
+non terminal Stmt           stmt, open_stmt, closed_stmt;
+non terminal IfStmt         if_stmt, if_open_else_stmt, if_closed_else_stmt;
+non terminal ForStmt        for_open_stmt, for_closed_stmt;
+non terminal WhileStmt      while_open_stmt, while_closed_stmt, do_stmt;
 
 precedence left     EQ, NEQ;
 precedence left     GT, LT, GTE, LTE;
@@ -54,406 +54,500 @@ precedence left     PLUS, MINUS;
 precedence left     MULT, DIV;
 precedence right    UMINUS;
 precedence left     RBRACE, LBRACE;
-precedence left     ELSE;
 
 program ::= 
             {:
-                System.out.println("Program := ");
-                Program p = new Program(null, null);
+                Program p = new Program(null, null, null, null);
+                System.out.println("Program"+p.get_pos()+" := ");
             :}
         |   decl_list:dl
             {:
-                System.out.println("Program := DeclList");
-                Program p = new Program(dl, null);
+                Program p = new Program(dl, null, dl.start, dl.end);
+                System.out.println("Program"+p.get_pos()+" := DeclList"+dl.get_pos());
             :}
         |   func_list:fl
             {:
-                System.out.println("Program := FuncList");
-                Program p = new Program(null, fl);
+                Program p = new Program(null, fl, fl.start, fl.end);
+                System.out.println("Program"+p.get_pos()+" := FuncList"+fl.get_pos());
             :}
         |   decl_list:dl func_list:fl
             {:
-                System.out.println("Program := DeclList FuncList");
-                Program p = new Program(dl, fl);
+                Program p = new Program(dl, fl, dl.start, fl.end);
+                System.out.println("Program"+p.get_pos()+" := DeclList"+dl.get_pos()+" FuncList"+fl.get_pos());
             :}
         ;
 
 decl_list ::=
             decl:d
             {:
-                System.out.println("DeclList := Declaration");
-                RESULT = new DeclList(d);
+                RESULT = new DeclList(d, d.start, d.end);
+                System.out.println("DeclList"+RESULT.get_pos()+" := Declaration"+d.get_pos());
             :}
         |   decl_list:dl decl:d
             {:
-                System.out.println("DeclList := DeclList Declaration");
+                String temp = dl.get_pos();
                 dl.add(d); RESULT = dl;
+                System.out.println("DeclList"+RESULT.get_pos()+" := DeclList"+temp+" Declaration"+d.get_pos());
             :}
         ;
 
 func_list ::=
             func:f
             {:
-                System.out.println("FuncList := Function");
-                RESULT = new FuncList(f);
+                RESULT = new FuncList(f, f.start, f.end);
+                System.out.println("FuncList"+RESULT.get_pos()+" := Function"+f.get_pos());
             :}
         |   func_list:fl func:f
             {:
-                System.out.println("FuncList := FuncList Function");
+                String temp = fl.get_pos();
                 fl.add(f); RESULT = fl;
+                System.out.println("FuncList"+RESULT.get_pos()+" := FuncList"+temp+" Function"+f.get_pos());
             :}
         ;
 
 decl ::=
-            type:t ident_list:idl SEMI
+            type:t ident_list:idl SEMI:s
             {:
-                System.out.println("Declaration := Type IdentList ;");
-                RESULT = new Decl(t,idl);
+                RESULT = new Decl(t,idl,t.start,new Pos(sleft,sright));
+                System.out.println("Declaration"+RESULT.get_pos()+" := Type"+t.get_pos()+" IdentList"+idl.get_pos()+" ;");
             :}
         ;
 
 ident_list ::=
             ident:id
             {:
-                System.out.println("IdentList := Identifier");
-                RESULT = new IdentList(id);
+                RESULT = new IdentList(id,id.start,id.end);
+                System.out.println("IdentList"+RESULT.get_pos()+" := Identifier"+id.get_pos());
             :}
         |   ident_list:idl COMMA ident:id
             {:
-                System.out.println("IdentList := IdentList , Identifier");
+                String temp = idl.get_pos();
                 idl.add(id); RESULT = idl;
+                System.out.println("IdentList"+RESULT.get_pos()+" := IdentList"+temp+" , Identifier"+id.get_pos());
             :}
         ;
 
 ident ::=
             ID:id
             {:
-                System.out.println("Identifier := id");
-                RESULT = new SingleIdent(id);
+                RESULT = new SingleIdent(id,new Pos(idleft,idright),new Pos(idleft,idright+id.length()-1));
+                System.out.println("Identifier"+RESULT.get_pos()+" := ID:'"+id+"'");
             :}
-        |   ID:id LSBRACE INTNUM:k RSBRACE
+        |   ID:id LSBRACE INTNUM:k RSBRACE:r
             {:
-                System.out.println("Identifier := id [ intnum ]");
-                RESULT = new ArrayIdent(id,k);
+                RESULT = new ArrayIdent(id,k,new Pos(idleft,idright),new Pos(idleft, idright));
+                System.out.println("Identifier"+RESULT.get_pos()+" := ID:'"+id+"' [ INT:"+k+" ]");
             :}
         ;
 
 func ::=
             type:t ID:fn LPAREN RPAREN comp_stmt:cs
             {:
-                System.out.println("Function := Type id ( ) CompoundStmt");
-                RESULT = new Func(t,fn,null,cs);
+                RESULT = new Func(t,fn,null,cs,t.start,cs.end);
+                System.out.println("Function"+RESULT.get_pos()+" := Type"+t.get_pos()+" ID:'"+fn+"' ( ) CompoundStmt"+cs.get_pos());
             :}
         |   type:t ID:fn LPAREN param_list:pl RPAREN comp_stmt:cs
             {:
-                System.out.println("Function := Type id ( ParamList ) CompoundStmt");
-                RESULT = new Func(t,fn,pl,cs);
+                RESULT = new Func(t,fn,pl,cs,t.start,cs.end);
+                System.out.println("Function"+RESULT.get_pos()+" := Type"+t.get_pos()+" ID:'"+fn+"' ( ParamList"+pl.get_pos()+" ) CompoundStmt"+cs.get_pos());
             :}
         ;
 
 param_list ::=
             type:t ident:id
             {:
-                System.out.println("ParamList := Type ident");
-                RESULT = new ParamList(t,id);
+                RESULT = new ParamList(t,id,t.start,id.end);
+                System.out.println("ParamList"+RESULT.get_pos()+" := Type"+t.get_pos()+" Ident"+id.get_pos());
             :}
         |   param_list:pl COMMA type:t ident:id
             {:
-                System.out.println("ParamList := ParamList , Type ident");
+                String temp = pl.get_pos();
                 pl.add(t,id); RESULT = pl;
+                System.out.println("ParamList"+RESULT.get_pos()+" := ParamList"+temp+" , Type"+t.get_pos()+"Ident"+id.get_pos());
             :}
         ;
 
 type ::=
-            INT
+            INT:k
             {:
-                System.out.println("Type := int");
-                RESULT = new Type(0);
+                RESULT = new Type(0,new Pos(kleft,kright),new Pos(kleft,kright+2));
+                System.out.println("Type"+RESULT.get_pos()+" := int");
             :}
-        |   FLOAT
+        |   FLOAT:k
             {:
-                System.out.println("Type := float");
-                RESULT = new Type(1);
+                RESULT = new Type(1,new Pos(kleft,kright),new Pos(kleft,kright+4));
+                System.out.println("Type"+RESULT.get_pos()+" := float");
             :}
         ;
 
 comp_stmt ::=
             LBRACE:l stmt_list:sl RBRACE:r
             {:
-                //System.out.println(lleft+" "+lright+" "+"CompoundStmt := { StmtList }");
-                System.out.println("CompoundStmt := { StmtList }");
-                RESULT = new CompStmt(null, sl);
+                RESULT = new CompStmt(null, sl,new Pos(lleft,lright), new Pos(rleft, rright));
+                System.out.println("CompoundStmt"+RESULT.get_pos()+" := { StmtList"+sl.get_pos()+" }");
             :}
-        |   LBRACE decl_list:dl stmt_list:sl RBRACE
+        |   LBRACE:l decl_list:dl stmt_list:sl RBRACE:r
             {:
-                System.out.println("CompoundStmt := { DeclList StmtList }");
-                RESULT = new CompStmt(dl, sl);
+                RESULT = new CompStmt(dl, sl, new Pos(lleft,lright), new Pos(rleft, rright));
+                System.out.println("CompoundStmt"+RESULT.get_pos()+" := { DeclList"+dl.get_pos()+" StmtList"+sl.get_pos()+" }");
             :}
         ;
 
 stmt_list ::=
             {:
-                System.out.println("StmtList :=");
-                RESULT = new StmtList();
+                RESULT = new StmtList(null,null);
+                System.out.println("StmtList :="+RESULT.get_pos()+" :=");
             :}
         |   stmt_list:sl stmt:s
             {:
-                System.out.println("StmtList := StmtList Stmt");
-                if(s!=null) { sl.add(s); } RESULT = sl;
+                String temp = sl.get_pos();
+                sl.add(s); RESULT = sl;
+                System.out.println("StmtList"+RESULT.get_pos()+" := StmtList"+temp+" Stmt"+s.get_pos());
             :}
         ;
 
 stmt ::=
+            open_stmt:os
+            {:
+                RESULT = os;
+                System.out.println("Stmt"+RESULT.get_pos()+" := OpenStmt"+os.get_pos());
+            :}
+        |   closed_stmt:cs
+            {:
+                RESULT = cs;
+                System.out.println("Stmt"+RESULT.get_pos()+" := ClosedStmt"+cs.get_pos());
+            :}
+        ;
+
+open_stmt ::=
+            if_stmt:s
+            {:
+                RESULT = s;
+                System.out.println("OpenStmt"+RESULT.get_pos()+" := IfStmt"+s.get_pos());
+            :}
+        |   if_open_else_stmt:s
+            {:
+                RESULT = s;
+                System.out.println("OpenStmt"+RESULT.get_pos()+" := IfOpenElseStmt"+s.get_pos());
+            :}
+        |   for_open_stmt:s
+            {:
+                RESULT = s;
+                System.out.println("OpenStmt"+RESULT.get_pos()+" := ForOpenStmt"+s.get_pos());
+            :}
+        |   while_open_stmt:s
+            {:
+                RESULT = s;
+                System.out.println("OpenStmt"+RESULT.get_pos()+" := WhileOpenStmt"+s.get_pos());
+            :}
+        ;
+
+closed_stmt ::=
             assign_stmt:as
             {:
-                System.out.println("Stmt := AssignStmt");
                 RESULT = as;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := AssignStmt"+as.get_pos());
             :}
         |   call_stmt:ca
             {:
-                System.out.println("Stmt := CallStmt");
                 RESULT = ca;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := CallStmt"+ca.get_pos());
             :}
         |   ret_stmt:ret
             {:
-                System.out.println("Stmt := RetStmt");
                 RESULT = ret;
-            :}
-        |   while_stmt:wh
-            {:
-                System.out.println("Stmt := WhileStmt");
-                RESULT = wh;
-            :}
-        |   for_stmt:for_st
-            {:
-                System.out.println("Stmt := ForStmt");
-                RESULT = for_st;
-            :}
-        |   if_stmt:if_st
-            {:
-                System.out.println("Stmt := IfStmt");
-                RESULT = if_st;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := RetStmt"+ret.get_pos());
             :}
         |   switch_stmt:sw
             {:
-                System.out.println("Stmt := SwitchStmt");
                 RESULT = sw;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := SwitchStmt"+sw.get_pos());
             :}
         |   comp_stmt:cs
             {:
-                System.out.println("Stmt := CompoundStmt");
                 RESULT = cs;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := CompoundStmt"+cs.get_pos());
             :}
-        |   SEMI
+        |   if_closed_else_stmt:s
             {:
-                System.out.println("Stmt := ;");
-                RESULT = null;
+                RESULT = s;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := IfClosedElseStmt"+s.get_pos());
+            :}
+        |   for_closed_stmt:s
+            {:
+                RESULT = s;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := ForClosedStmt"+s.get_pos());
+            :}
+        |   while_closed_stmt:s
+            {:
+                RESULT = s;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := WhileClosedStmt"+s.get_pos());
+            :}
+        |   do_stmt:s
+            {:
+                RESULT = s;
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := DoWhileStmt"+s.get_pos());
+            :}
+        |   SEMI:s
+            {:
+                RESULT = new NullStmt(new Pos(sleft,sright),new Pos(sleft,sright));
+                System.out.println("ClosedStmt"+RESULT.get_pos()+" := ;");
             :}
         ;
 
 assign_stmt ::=
-            assign:as SEMI
+            assign:as SEMI:s
             {:
-                System.out.println("AssignStmt := Assign ;");
-                RESULT = new AssignStmt(as);
+                RESULT = new AssignStmt(as,as.start,new Pos(sleft,sright));
+                System.out.println("AssignStmt"+RESULT.get_pos()+" := Assign"+as.get_pos()+" ;");
             :}
         ;
 
 assign ::=
             ID:id ASSIGN expr:e
             {:
-                System.out.println("Assign := id = Expr");
-                RESULT = new Assign(id,null,e);
+                RESULT = new Assign(id,null,e,new Pos(idleft,idright+id.length()-1),e.end);
+                System.out.println("Assign"+RESULT.get_pos()+" := ID:'"+id+"' = Expr"+e.get_pos());
             :}
         |   ID:id LSBRACE expr:idx RSBRACE ASSIGN expr:e
             {:
-                System.out.println("Assign := id [ Expr ] = Expr");
-                RESULT = new Assign(id,idx,e);
+                RESULT = new Assign(id,idx,e,new Pos(idleft,idright+id.length()-1),e.end);
+                System.out.println("Assign"+RESULT.get_pos()+" := ID:'"+id+"' [ Expr"+idx.get_pos()+" ] = Expr"+e.get_pos());
             :}
         ;
 
 call_stmt ::=
-            call:c SEMI
+            call:c SEMI:s
             {:
-                System.out.println("CallStmt := Call ;");
-                RESULT = new CallStmt(c);
+                RESULT = new CallStmt(c, c.start, new Pos(sleft,sright));
+                System.out.println("CallStmt"+RESULT.get_pos()+" := Call"+c.get_pos()+" ;");
             :}
         ;
 call ::=
-            ID:id LPAREN RPAREN
+            ID:id LPAREN RPAREN:r
             {:
-                System.out.println("Call := id ( )");
-                RESULT = new Call(id,null);
+                RESULT = new Call(id,null,new Pos(idleft,idright),new Pos(rleft,rright));
+                System.out.println("Call"+RESULT.get_pos()+" := ID:'"+id+"' ( )");
             :}
-        |   ID:id LPAREN arg_list:al RPAREN
+        |   ID:id LPAREN arg_list:al RPAREN:r
             {:
-                System.out.println("Call := id ( ArgList )");
-                RESULT = new Call(id,al);
+                RESULT = new Call(id,al,new Pos(idleft,idright),new Pos(rleft,rright));
+                System.out.println("Call"+RESULT.get_pos()+" := ID:'"+id+"' ( ArgList"+al.get_pos()+" )");
             :}
         ;
 
 ret_stmt ::=
-            RETURN SEMI
+            RETURN:r SEMI:s
             {:
-                System.out.println("RetStmt := return ;");
-                RESULT = new RetStmt(null);
+                RESULT = new RetStmt(null,new Pos(rleft,rright), new Pos(sleft,sright));
+                System.out.println("RetStmt"+RESULT.get_pos()+" := return ;");
             :}
-        |   RETURN expr:e SEMI
+        |   RETURN:r expr:e SEMI:s
             {:
-                System.out.println("RetStmt := return Expr ;");
-                RESULT = new RetStmt(e);
-            :}
-        ;
-
-while_stmt ::=
-            WHILE LPAREN expr:e RPAREN stmt:s SEMI
-            {:
-                System.out.println("WhileStmt := while ( Expr ) Stmt ;");
-                RESULT = new WhileStmt(e,s,false);
-            :}
-        |   DO stmt:s WHILE LPAREN expr:e RPAREN SEMI
-            {:
-                System.out.println("WhileStmt := do Stmt while ( Expr ) ;");
-                RESULT = new WhileStmt(e,s,true);
-            :}
-        ;
-
-for_stmt ::=
-            FOR LPAREN assign:init SEMI expr:cond SEMI assign:as RPAREN stmt:st
-            {:
-                System.out.println("ForStmt := for ( Assign ; Expr ; Assign ) Stmt");
-                RESULT = new ForStmt(init,cond,as,st);
+                RESULT = new RetStmt(e,new Pos(rleft,rright), new Pos(sleft,sright));
+                System.out.println("RetStmt"+RESULT.get_pos()+" := return Expr"+e.get_pos()+" ;");
             :}
         ;
 
 if_stmt ::=
-            IF LPAREN expr:cond RPAREN stmt:th ELSE stmt:el
+            IF:i LPAREN expr:cond RPAREN stmt:th
             {:
-                System.out.println("ifStmt := if ( Expr ) Stmt else Stmt");
-                RESULT = new IfStmt(cond,th,el);
+                RESULT = new IfStmt(cond,th,null,new Pos(ileft,iright), th.end);
+                System.out.println("IfStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) Stmt"+th.get_pos());
             :}
-        |   IF LPAREN expr:cond RPAREN stmt:th
+        ;
+
+if_open_else_stmt ::=
+            IF:i LPAREN expr:cond RPAREN closed_stmt:th ELSE open_stmt:el
             {:
-                System.out.println("IfStmt := if ( Expr ) Stmt");
-                RESULT = new IfStmt(cond,th,null);
+                RESULT = new IfStmt(cond,th,el,new Pos(ileft,iright), el.end);
+                System.out.println("IfOpenElseStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) ClosedStmt"+th.get_pos()+" else OpenStmt"+el.get_pos());
+            :}
+        ;
+
+if_closed_else_stmt ::=
+            IF:i LPAREN expr:cond RPAREN closed_stmt:th ELSE closed_stmt:el
+            {:
+                RESULT = new IfStmt(cond,th,el,new Pos(ileft,iright), el.end);
+                System.out.println("IfClosedElseStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) ClosedStmt"+th.get_pos()+" else ClosedStmt"+el.get_pos());
+            :}
+        ;
+
+while_open_stmt ::=
+            WHILE:w LPAREN expr:e RPAREN open_stmt:st
+            {:
+                RESULT = new WhileStmt(e,st,false,new Pos(wleft,wright), st.end);
+                System.out.println("WhileOpenStmt"+RESULT.get_pos()+" := while ( Expr"+e.get_pos()+" ) OpenStmt"+st.get_pos()+" ;");
+            :}
+        ;
+
+while_closed_stmt ::=
+            WHILE:w LPAREN expr:e RPAREN closed_stmt:st
+            {:
+                RESULT = new WhileStmt(e,st,false,new Pos(wleft,wright), st.end);
+                System.out.println("WhileClosedStmt"+RESULT.get_pos()+" := while ( Expr"+e.get_pos()+" ) ClosedStmt"+st.get_pos()+" ;");
+            :}
+        ;
+
+for_open_stmt ::=
+            FOR:f LPAREN assign:init SEMI expr:cond SEMI assign:as RPAREN open_stmt:st
+            {:
+                RESULT = new ForStmt(init,cond,as,st,new Pos(fleft,fright),st.end);
+                System.out.println("ForOpenStmt"+RESULT.get_pos()+" := for ( Assign"+init.get_pos()+" ; Expr"+cond.get_pos()+" ; Assign+"+as.get_pos()+" ) OpenStmt"+st.get_pos());
+            :}
+        ;
+
+for_closed_stmt ::=
+            FOR:f LPAREN assign:init SEMI expr:cond SEMI assign:as RPAREN closed_stmt:st
+            {:
+                RESULT = new ForStmt(init,cond,as,st,new Pos(fleft,fright),st.end);
+                System.out.println("ForClosedStmt"+RESULT.get_pos()+" := for ( Assign"+init.get_pos()+" ; Expr"+cond.get_pos()+" ; Assign"+as.get_pos()+" ) ClosedStmt"+st.get_pos());
+            :}
+        ;
+
+do_stmt ::=
+            DO:d stmt:st WHILE LPAREN expr:e RPAREN SEMI:s
+            {:
+                RESULT = new WhileStmt(e,st,true,new Pos(dleft,dright), new Pos(sleft,sright));
+                System.out.println("WhileStmt"+RESULT.get_pos()+" : = do Stmt"+st.get_pos()+" while ( Expr"+e.get_pos()+" ) ;");
             :}
         ;
 
 switch_stmt ::=
-            SWITCH LPAREN ident:id RPAREN LBRACE case_list:cl RBRACE
+            SWITCH:s LPAREN ident:id RPAREN LBRACE case_list:cl RBRACE:r
             {:
-                System.out.println("SwitchStmt := switch ( Identifier ) { CaseList }");
-                RESULT = new SwitchStmt(id,cl,null,false);
+                RESULT = new SwitchStmt(id,cl,null,false,new Pos(sleft,sright), new Pos(rleft,rright));
+                System.out.println("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" }");
             :}
-        |   SWITCH LPAREN ident:id RPAREN LBRACE case_list:cl DEFAULT COLON stmt_list:ds RBRACE
+        |   SWITCH:s LPAREN ident:id RPAREN LBRACE case_list:cl DEFAULT COLON stmt_list:ds RBRACE:r
             {:
-                System.out.println("SwitchStmt := switch ( Identifier ) { CaseList default : StmtList }");
-                RESULT = new SwitchStmt(id,cl,ds,false);
+                RESULT = new SwitchStmt(id,cl,ds,false,new Pos(sleft,sright), new Pos(rleft,rright));
+                System.out.println("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" default : StmtList"+ds.get_pos()+" }");
             :}
-        |   SWITCH LPAREN ident:id RPAREN LBRACE case_list:cl DEFAULT COLON stmt_list:ds BREAK SEMI RBRACE
+        |   SWITCH:s LPAREN ident:id RPAREN LBRACE case_list:cl DEFAULT COLON stmt_list:ds BREAK SEMI RBRACE:r
             {:
-                System.out.println("SwitchStmt := switch ( Identifier ) { CaseList default : StmtList break ; }");
-                RESULT = new SwitchStmt(id,cl,ds,true);
+                RESULT = new SwitchStmt(id,cl,ds,true,new Pos(sleft,sright),new Pos(rleft,rright));
+                System.out.println("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" default : StmtList"+ds.get_pos()+" break ; }");
             :}
         ;
 
 case_list ::=
             {:
-                System.out.println("CaseList := ");
-                RESULT = new CaseList();
+                RESULT = new CaseList(null, null);
+                System.out.println("CaseList"+RESULT.get_pos()+" :=");
             :}
-        |   case_list:cl CASE INTNUM:k COLON stmt_list:sl
+        |   case_list:cl CASE:c INTNUM:k COLON stmt_list:sl
             {:
-                System.out.println("CaseList := CaseList case intnum : StmtList");
-                cl.add(k,sl,false); RESULT = cl;
+                String temp = cl.get_pos();
+                cl.add(k,sl,false,new Pos(cleft,cright), sl.end); RESULT = cl;
+                System.out.println("CaseList"+RESULT.get_pos()+" := CaseList"+temp+" case INT:"+k+" : StmtList"+sl.get_pos());
             :}
-        |   case_list:cl CASE INTNUM:k COLON stmt_list:sl BREAK SEMI
+        |   case_list:cl CASE:c INTNUM:k COLON stmt_list:sl BREAK SEMI:s
             {:
-                System.out.println("CaseList := CaseList case intnum : StmtList break ;");
-                cl.add(k,sl,true); RESULT = cl;
+                String temp = cl.get_pos();
+                cl.add(k,sl,true,new Pos(cleft,cright), new Pos(sleft,sright)); RESULT = cl;
+                System.out.println("CaseList"+RESULT.get_pos()+" := CaseList"+temp+" case INT:"+k+" : StmtList"+sl.get_pos()+" break ;");
             :}
         ;
 
 expr ::=
-            MINUS expr
+            MINUS:m expr:e
             {:
-                System.out.println("Expr := - Expr");
+                RESULT = new Expr(new Pos(mleft,mright), e.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := - Expr"+e.get_pos());
             :} %prec UMINUS
-        |   expr MULT expr
+        |   expr:l MULT expr:r
             {:
-                System.out.println("Expr := Expr * Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" * Expr"+r.get_pos());
             :}
-        |   expr DIV expr
+        |   expr:l DIV expr:r
             {:
-                System.out.println("Expr := Expr / Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" / Expr"+r.get_pos());
             :}
-        |   expr PLUS expr
+        |   expr:l PLUS expr:r
             {:
-                System.out.println("Expr := Expr + Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" + Expr"+r.get_pos());
             :}
-        |   expr MINUS expr
+        |   expr:l MINUS expr:r
             {:
-                System.out.println("Expr := Expr - Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" - Expr"+r.get_pos());
             :}
-        |   expr GT expr
+        |   expr:l GT expr:r
             {:
-                System.out.println("Expr := Expr > Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" > Expr"+r.get_pos());
             :}
-        |   expr LT expr
+        |   expr:l LT expr:r
             {:
-                System.out.println("Expr := Expr < Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" < Expr"+r.get_pos());
             :}
-        |   expr GTE expr
+        |   expr:l GTE expr:r
             {:
-                System.out.println("Expr := Expr >= Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" >= Expr"+r.get_pos());
             :}
-        |   expr LTE expr
+        |   expr:l LTE expr:r
             {:
-                System.out.println("Expr := Expr <= Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" <= Expr"+r.get_pos());
             :}
-        |   expr EQ expr
+        |   expr:l EQ expr:r
             {:
-                System.out.println("Expr := Expr == Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" == Expr"+r.get_pos());
             :}
-        |   expr NEQ expr
+        |   expr:l NEQ expr:r
             {:
-                System.out.println("Expr := Expr != Expr");
+                RESULT = new Expr(l.start, r.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" != Expr"+r.get_pos());
             :}
-        |   call
+        |   call:c
             {:
-                System.out.println("Expr := Call");
+                RESULT = new Expr(c.start, c.end);
+                System.out.println("Expr"+RESULT.get_pos()+" := Call"+c.get_pos());
             :}
-        |   INTNUM
+        |   INTNUM:k
             {:
-                System.out.println("Expr := intnum");
+                RESULT = new Expr(new Pos(kleft,kright), new Pos(kleft,kright+k.toString().length()-1));
+                System.out.println("Expr"+RESULT.get_pos()+" := INT:"+k);
             :}
-        |   FLOATNUM
+        |   FLOATNUM:k
             {:
-                System.out.println("Expr := floatnum");
+                RESULT = new Expr(new Pos(kleft,kright), new Pos(kleft,kright+k.toString().length()-1));
+                System.out.println("Expr"+RESULT.get_pos()+" := FLOAT:"+k);
             :}
-        |   ID
+        |   ID:i
             {:
-                System.out.println("Expr := id");
+                RESULT = new Expr(new Pos(ileft,iright), new Pos(ileft,iright+i.length()-1));
+                System.out.println("Expr"+RESULT.get_pos()+" := ID:'"+i+"'");
             :}
-        |   ID LSBRACE expr RSBRACE
+        |   ID:i LSBRACE expr:e RSBRACE:r
             {:
-                System.out.println("Expr := id [ Expr ]");
+                RESULT = new Expr(new Pos(ileft,iright), new Pos(rleft,rright));
+                System.out.println("Expr"+RESULT.get_pos()+" := ID:'"+i+"' [ Expr"+e.get_pos()+" ]");
             :}
-        |   LPAREN expr RPAREN
+        |   LPAREN:l expr:e RPAREN:r
             {:
-                System.out.println("Expr := ( Expr )");
+                RESULT = new Expr(new Pos(lleft,lright), new Pos(rleft,rright));
+                System.out.println("Expr"+RESULT.get_pos()+" := ( Expr"+e.get_pos()+" )");
             :}
         ;
 
 arg_list ::=
             expr:e
             {:
-                System.out.println("ArgList := Expr");
-                RESULT = new ArgList(e);
+                RESULT = new ArgList(e,e.start,e.end);
+                System.out.println("ArgList"+RESULT.get_pos()+" := Expr"+e.get_pos());
             :}
         |   arg_list:al COMMA expr:e
             {:
-                System.out.println("ArgList := ArgList , Expr");
+                String temp = al.get_pos();
                 al.add(e); RESULT = al;
+                System.out.println("ArgList"+RESULT.get_pos()+" := ArgList"+temp+" , Expr"+e.get_pos());
             :}
         ;

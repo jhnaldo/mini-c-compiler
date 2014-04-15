@@ -10,13 +10,16 @@ import java_cup.runtime.*;
 %char
 
 %{
-
     private Symbol tok(int kind) {
         return new Symbol(kind, yyline+1, yychar+1);
     }
 
     private Symbol tok(int kind, Object value) {
         return new Symbol(kind, yyline+1, yychar+1, value);
+    }
+
+    private void yyline() {
+        yychar = -1;
     }
 %}
 
@@ -67,6 +70,6 @@ WHITE_SPACE = (\ |\t|\f)
 {INTNUM}        { return tok(sym.INTNUM, new Integer(yytext())); }
 
 {WHITE_SPACE}   { /* ignore white space. */ }
-{NEW_LINE}      { /* ignore new line. */ }
+{NEW_LINE}      { yyline(); }
 
 .               { System.err.println("Illegal character: "+yytext()); }
