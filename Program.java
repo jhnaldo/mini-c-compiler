@@ -3,10 +3,19 @@
 
 import java.util.*;
 
-interface Ident { }
-interface Stmt { }
+class Pos {
+    public int linenum=0;
+    public int colnum=0;
+    public Pos(int l, int c){
+        linenum = l;
+        colnum = c;
+    }
+}
+abstract class Absyn { public Pos start; public Pos end; }
+abstract class Ident extends Absyn { }
+abstract class Stmt extends Absyn { }
 
-class Program {
+class Program extends Absyn {
     DeclList decls;
     FuncList funcs;
 
@@ -16,7 +25,7 @@ class Program {
     }
 }
 
-class DeclList {
+class DeclList extends Absyn {
     ArrayList<Decl> arr;
 
     public DeclList(Decl decl) {
@@ -29,7 +38,7 @@ class DeclList {
     }
 }
 
-class FuncList {
+class FuncList extends Absyn {
     ArrayList<Func> arr;
 
     public FuncList(Func func) {
@@ -42,7 +51,7 @@ class FuncList {
     }
 }
 
-class Decl {
+class Decl extends Absyn {
     Type typ;
     IdentList idents;
 
@@ -52,7 +61,7 @@ class Decl {
     }
 }
 
-class IdentList {
+class IdentList extends Absyn {
     ArrayList<Ident> arr;
 
     public IdentList(Ident id) {
@@ -65,7 +74,7 @@ class IdentList {
     }
 }
 
-class SingleIdent implements Ident {
+class SingleIdent extends Ident {
     String name;
     Number val;
 
@@ -75,7 +84,7 @@ class SingleIdent implements Ident {
     }
 }
 
-class ArrayIdent implements Ident {
+class ArrayIdent extends Ident {
     String name;
     ArrayList<Number> val;
     Integer size;
@@ -90,7 +99,7 @@ class ArrayIdent implements Ident {
     }
 }
 
-class Func {
+class Func extends Absyn {
     Type typ;
     String name;
     ParamList params;
@@ -104,7 +113,7 @@ class Func {
     }
 }
 
-class ParamList {
+class ParamList extends Absyn {
     ArrayList<Type> tarr;
     ArrayList<Ident> iarr;
 
@@ -121,7 +130,7 @@ class ParamList {
     }
 }
 
-class Type {
+class Type extends Absyn {
     Integer typ;
 
     public Type(Integer t) {
@@ -129,7 +138,7 @@ class Type {
     }
 }
 
-class CompStmt implements Stmt{
+class CompStmt extends Stmt{
     DeclList decls;
     StmtList stmts;
 
@@ -139,7 +148,7 @@ class CompStmt implements Stmt{
     }
 }
 
-class StmtList {
+class StmtList extends Absyn {
     ArrayList<Stmt> arr;
 
     public StmtList() {
@@ -151,7 +160,7 @@ class StmtList {
     }
 }
 
-class AssignStmt implements Stmt {
+class AssignStmt extends Stmt {
     Assign assign;
 
     public AssignStmt(Assign as) {
@@ -159,7 +168,7 @@ class AssignStmt implements Stmt {
     }
 }
 
-class Assign {
+class Assign extends Absyn {
     String name;
     Expr index, expr;
 
@@ -170,7 +179,7 @@ class Assign {
     }
 }
 
-class CallStmt implements Stmt {
+class CallStmt extends Stmt {
     Call call;
 
     public CallStmt(Call c){
@@ -178,7 +187,7 @@ class CallStmt implements Stmt {
     }
 }
 
-class Call {
+class Call extends Absyn {
     String name;
     ArgList args;
 
@@ -188,7 +197,7 @@ class Call {
     }
 }
 
-class RetStmt implements Stmt {
+class RetStmt extends Stmt {
     Expr expr;
 
     public RetStmt(Expr e) {
@@ -196,7 +205,7 @@ class RetStmt implements Stmt {
     }
 }
 
-class WhileStmt implements Stmt {
+class WhileStmt extends Stmt {
     Expr expr;
     Stmt stmt;
     Boolean is_do;
@@ -208,7 +217,7 @@ class WhileStmt implements Stmt {
     }
 }
 
-class ForStmt implements Stmt {
+class ForStmt extends Stmt {
     Assign initial;
     Expr condition;
     Assign incl;
@@ -222,7 +231,7 @@ class ForStmt implements Stmt {
     }
 }
 
-class IfStmt implements Stmt {
+class IfStmt extends Stmt {
     Expr condition;
     Stmt then_stmt, else_stmt;
 
@@ -233,7 +242,7 @@ class IfStmt implements Stmt {
     }
 }
 
-class SwitchStmt implements Stmt {
+class SwitchStmt extends Stmt {
     Ident ident;
     CaseList cases;
     StmtList default_stmt;
@@ -247,7 +256,7 @@ class SwitchStmt implements Stmt {
     }
 }
 
-class CaseList {
+class CaseList extends Absyn {
     ArrayList<Integer> iarr;
     ArrayList<StmtList> sarr;
     ArrayList<Boolean> barr;
@@ -265,10 +274,10 @@ class CaseList {
     }
 }
 
-class Expr {
+class Expr extends Absyn {
 }
 
-class ArgList {
+class ArgList extends Absyn {
     ArrayList<Expr> arr;
 
     public ArgList(Expr e) {

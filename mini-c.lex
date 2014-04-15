@@ -6,55 +6,65 @@ import java_cup.runtime.*;
 %%
 
 %cup
+%line
+%char
+
+%{
+
+    private Symbol tok(int kind) {
+        return new Symbol(kind, yyline+1, yychar+1);
+    }
+
+    private Symbol tok(int kind, Object value) {
+        return new Symbol(kind, yyline+1, yychar+1, value);
+    }
+%}
 
 ID          = [A-Za-z][A-Za-z0-9_]*
 INTNUM      = [0-9]+
 FLOATNUM    = [0-9]+\.[0-9]+
 NEW_LINE    = (\n|\r)
 WHITE_SPACE = (\ |\t|\f)
-
 %%
 
-"-"             { return new Symbol(sym.UMINUS); }
+"*"             { return tok(sym.MULT); }
+"/"             { return tok(sym.DIV); }
+"+"             { return tok(sym.PLUS); }
+"-"             { return tok(sym.MINUS); }
+"<"             { return tok(sym.LT); }
+">"             { return tok(sym.GT); }
+"<="            { return tok(sym.LTE); }
+">="            { return tok(sym.GTE); }
+"=="            { return tok(sym.EQ); }
+"!="            { return tok(sym.NEQ); }
 
-"*"             { return new Symbol(sym.MULT); }
-"/"             { return new Symbol(sym.DIV); }
-"+"             { return new Symbol(sym.PLUS); }
-"-"             { return new Symbol(sym.MINUS); }
-"<"             { return new Symbol(sym.LT); }
-">"             { return new Symbol(sym.GT); }
-"<="            { return new Symbol(sym.LTE); }
-">="            { return new Symbol(sym.GTE); }
-"=="            { return new Symbol(sym.EQ); }
-"!="            { return new Symbol(sym.NEQ); }
+"="             { return tok(sym.ASSIGN); }
+"("             { return tok(sym.LPAREN); }
+")"             { return tok(sym.RPAREN); }
+"{"             { return tok(sym.LBRACE); }
+"}"             { return tok(sym.RBRACE); }
+"["             { return tok(sym.LSBRACE); }
+"]"             { return tok(sym.RSBRACE); }
+","             { return tok(sym.COMMA); }
+";"             { return tok(sym.SEMI); }
+":"             { return tok(sym.COLON); }
 
-"="             { return new Symbol(sym.ASSIGN); }
-"("             { return new Symbol(sym.LPAREN); }
-")"             { return new Symbol(sym.RPAREN); }
-"{"             { return new Symbol(sym.LBRACE); }
-"}"             { return new Symbol(sym.RBRACE); }
-"["             { return new Symbol(sym.LSBRACE); }
-"]"             { return new Symbol(sym.RSBRACE); }
-","             { return new Symbol(sym.COMMA); }
-";"             { return new Symbol(sym.SEMI); }
-":"             { return new Symbol(sym.COLON); }
+"int"           { return tok(sym.INT); }
+"float"         { return tok(sym.FLOAT); }
+"return"        { return tok(sym.RETURN); }
+"while"         { return tok(sym.WHILE); }
+"do"            { return tok(sym.DO); }
+"for"           { return tok(sym.FOR); }
+"if"            { return tok(sym.IF); }
+"else"          { return tok(sym.ELSE); }
+"switch"        { return tok(sym.SWITCH); }
+"case"          { return tok(sym.CASE); }
+"default"       { return tok(sym.DEFAULT); }
+"break"         { return tok(sym.BREAK); }
 
-"int"           { return new Symbol(sym.INT); }
-"float"         { return new Symbol(sym.FLOAT); }
-"return"        { return new Symbol(sym.RETURN); }
-"while"         { return new Symbol(sym.WHILE); }
-"do"            { return new Symbol(sym.DO); }
-"for"           { return new Symbol(sym.FOR); }
-"if"            { return new Symbol(sym.IF); }
-"else"          { return new Symbol(sym.ELSE); }
-"switch"        { return new Symbol(sym.SWITCH); }
-"case"          { return new Symbol(sym.CASE); }
-"default"       { return new Symbol(sym.DEFAULT); }
-"break"         { return new Symbol(sym.BREAK); }
-
-{ID}            { return new Symbol(sym.ID, yytext()); }
-{FLOATNUM}      { return new Symbol(sym.FLOATNUM, new Float(yytext())); }
-{INTNUM}        { return new Symbol(sym.INTNUM, new Integer(yytext())); }
+{ID}            { return tok(sym.ID, yytext()); }
+{FLOATNUM}      { return tok(sym.FLOATNUM, new Float(yytext())); }
+{INTNUM}        { return tok(sym.INTNUM, new Integer(yytext())); }
 
 {WHITE_SPACE}   { /* ignore white space. */ }
 {NEW_LINE}      { /* ignore new line. */ }

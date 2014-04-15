@@ -15,8 +15,8 @@ parser code {:
     }
 :}
 
-terminal UMINUS, MULT,DIV,PLUS,MINUS,LT,GT,LTE,GTE,EQ,NEQ;
-terminal ASSIGN,LPAREN,RPAREN,LBRACE,RBRACE,LSBRACE,RSBRACE,COMMA,SEMI, COLON;
+terminal UMINUS,MULT,DIV,PLUS,MINUS,LT,GT,LTE,GTE,EQ,NEQ;
+terminal ASSIGN,LPAREN,RPAREN,LBRACE,RBRACE,LSBRACE,RSBRACE,COMMA,SEMI,COLON;
 terminal INT,FLOAT,RETURN,WHILE,DO,FOR,IF,ELSE,SWITCH,CASE,DEFAULT,BREAK;
 terminal Integer    INTNUM;
 terminal Float      FLOATNUM;
@@ -46,17 +46,21 @@ non terminal SwitchStmt     switch_stmt;
 non terminal CaseList       case_list;
 non terminal Expr           expr;
 non terminal ArgList        arg_list;
+non terminal bin_op;
 
-precedence right    ASSIGN;
 precedence left     EQ, NEQ;
 precedence left     GT, LT, GTE, LTE;
 precedence left     PLUS, MINUS;
 precedence left     MULT, DIV;
 precedence right    UMINUS;
-precedence left     LPAREN, RPAREN;
+precedence left     RBRACE, LBRACE;
 precedence left     ELSE;
 
 program ::= 
+            {:
+                System.out.println("Program := ");
+                Program p = new Program(null, null);
+            :}
         |   decl_list:dl
             {:
                 System.out.println("Program := DeclList");
@@ -174,8 +178,9 @@ type ::=
         ;
 
 comp_stmt ::=
-            LBRACE stmt_list:sl RBRACE
+            LBRACE:l stmt_list:sl RBRACE:r
             {:
+                //System.out.println(lleft+" "+lright+" "+"CompoundStmt := { StmtList }");
                 System.out.println("CompoundStmt := { StmtList }");
                 RESULT = new CompStmt(null, sl);
             :}
@@ -370,10 +375,10 @@ case_list ::=
         ;
 
 expr ::=
-            UMINUS expr
+            MINUS expr
             {:
                 System.out.println("Expr := - Expr");
-            :}
+            :} %prec UMINUS
         |   expr MULT expr
             {:
                 System.out.println("Expr := Expr * Expr");
@@ -443,12 +448,12 @@ expr ::=
 arg_list ::=
             expr:e
             {:
-                System.out.println("");
+                System.out.println("ArgList := Expr");
                 RESULT = new ArgList(e);
             :}
         |   arg_list:al COMMA expr:e
             {:
-                System.out.println("");
+                System.out.println("ArgList := ArgList , Expr");
                 al.add(e); RESULT = al;
             :}
         ;
