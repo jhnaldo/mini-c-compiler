@@ -15,6 +15,7 @@
 environment setting :   make init
 build               :   make all
 test                :   make run < [filename].c
+clean               :   make clean
 
 
 ###################### mini-C GRAMMAR  ########################
