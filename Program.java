@@ -105,25 +105,19 @@ class Func {
 }
 
 class ParamList {
-    ArrayList<Param> arr;
+    ArrayList<Type> tarr;
+    ArrayList<Ident> iarr;
 
-    public ParamList(Param p) {
-        arr = new ArrayList<Param>();
-        arr.add(p);
+    public ParamList(Type t, Ident id) {
+        tarr = new ArrayList<Type>();
+        tarr.add(t);
+        iarr = new ArrayList<Ident>();
+        iarr.add(id);
     }
 
-    public void add(Param p) {
-        arr.add(p);
-    }
-}
-
-class Param {
-    Type typ;
-    Ident ident;
-
-    public Param(Type t, Ident id) {
-        typ = t;
-        ident = id;
+    public void add(Type t, Ident id) {
+        tarr.add(t);
+        iarr.add(id);
     }
 }
 
@@ -242,46 +236,32 @@ class IfStmt implements Stmt {
 class SwitchStmt implements Stmt {
     Ident ident;
     CaseList cases;
-    DefaultStmt def_stmt;
+    StmtList default_stmt;
+    Boolean default_has_break;
 
-    public SwitchStmt(Ident id, CaseList cl, DefaultStmt ds) {
+    public SwitchStmt(Ident id, CaseList cl, StmtList ds, Boolean dhb) {
         ident = id;
         cases = cl;
-        def_stmt = ds;
+        default_stmt = ds;
+        default_has_break = dhb;
     }
 }
 
 class CaseList {
-    ArrayList<CaseStmt> arr;
+    ArrayList<Integer> iarr;
+    ArrayList<StmtList> sarr;
+    ArrayList<Boolean> barr;
 
     public CaseList() {
-        arr = new ArrayList<CaseStmt>();
+        iarr = new ArrayList<Integer>();
+        sarr = new ArrayList<StmtList>();
+        barr = new ArrayList<Boolean>();
     }
 
-    public void add(CaseStmt cs){
-        arr.add(cs);
-    }
-}
-
-class CaseStmt {
-    Integer num;
-    StmtList stmts;
-    Boolean have_break;
-
-    public CaseStmt(Integer k, StmtList sl, Boolean hb){
-        num = k;
-        stmts = sl;
-        have_break = hb;
-    }
-}
-
-class DefaultStmt {
-    StmtList stmts;
-    Boolean have_break;
-
-    public DefaultStmt(StmtList sl, Boolean hb) {
-        stmts = sl;
-        have_break = hb;
+    public void add(Integer k, StmtList sl, Boolean hb){
+        iarr.add(k);
+        sarr.add(sl);
+        barr.add(hb);
     }
 }
 
