@@ -1,9 +1,9 @@
 *.swp
 *.log
 *.swo
+*.c
+result
 ./*.class
 ./Yylex.java
 ./parser.java
 ./sym.java
-./*.c
-./result
