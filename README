@@ -1,0 +1,66 @@
+// Copyright (c) 2014 Jihyeok Park
+// KAIST CS420 Project
+
+// NAME         : Jihyeok Park
+// STUDENT NO   : 20120484
+
+// This is the parser for mini-c.
+// It follows below mini-c grammar.
+
+
+
+######################### HOW TO RUN ##########################
+
+
+environment setting :   make init
+build               :   make all
+test                :   make run < [filename].c
+
+
+###################### mini-C GRAMMAR  ########################
+
+
+//  \(a\)\+ : one or more repetition of a
+//  \(a\)\* : zero or more repetition of a
+//  \(a\)\? : a optionally exists
+//  unop    : -
+//  binop   : *, /, +, -, <, >, <=, >=, ==, !=
+//  id      : \[A-Za-z\]\[A-Za-z0-9_\]\*
+//  intnum  : \[0-9\]+
+//  floatnum: \[0-9\]\+.\[0-9\]+
+
+Program         := \(DeclList\)\? \(FuncList\)\?
+DeclList        := \(Declaration\)\+
+FuncList        := \(Function\)\+
+Declaration     := Type IdentList ;
+IdentList       := Identifier\(, Identifier\)*
+identifier      := id \| id [ intnum ]
+Function        := Type id (\(ParamList\)\?) CompoundStmt
+ParamList       := Type Identifier \(, Type Identifier\)\*
+Type            := int \| float
+CompoundStmt    := { \(DeclList\)? StmtList }
+StmtList        := \(Stmt\)\*
+Stmt            := OpenStmt \| ClosedStmt
+OpenStmt        := IfStmt \| IfOpenElseStmt \| ForOpenStmt \| WhileOpenStmt
+ClosedStmt      := AssignStmt \| CallStmt \| RetStmt \| SwitchStmt \| CompStmt \| IfClosedElseStmt \| ForClosedStmt \| WhileClosedStmt \| DoWhileStmt \| ;
+AssignStmt      := Assign ;
+Assign          := id = Expr \| id [ Expr ] = Expr
+CallStmt        := Call ;
+Call            := id ( \(ArgList\)\? )
+RetStmt         := return \(Expr\)\? ;
+WhileOpenStmt   := while ( Expr ) OpenStmt
+WhileClosedStmt := whlie ( Expr ) ClosedStmt
+ForOpenStmt     := for ( Expr ) OpenStmt
+ForOpenStmt     := for ( Expr ) ClosedStmt
+IfStmt          := if ( Expr ) Stmt
+IfOpenElseStmt  := if ( Expr ) ClosedStmt else OpenStmt
+IfClosedElseStmt:= if ( Expr ) ClosedStmt else ClosedStmt
+SwitchStmt      := switch ( Identifier ) { CaseList \(default : StmtList \(break ;\)\?\)\? }
+CaseList        := \(case intnum : StmtList \(break ;\)\?\)\*
+Expr            := unop Expr \| Expr binop Expr \| Call \| intnum \| floatnum \| id \| id [ Expr ] \| ( Expr )
+ArgList         := Expr \(, Expr\)\*
+
+
+
+*** I modified the condition and loop production rule for removing dangling else problem with loop
+*** I modified the switch case rule for representing the default case
