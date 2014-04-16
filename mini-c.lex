@@ -72,4 +72,4 @@ WHITE_SPACE = (\ |\t|\f)
 {WHITE_SPACE}   { /* ignore white space. */ }
 {NEW_LINE}      { yyline(); }
 
-.               { System.err.println("Illegal character: "+yytext()); }
+.               { System.err.println("[Error]:"+yyline+":"+yychar+": Illegal character."); System.exit(0); }

@@ -4,14 +4,19 @@
 import java_cup.runtime.*;
 import java.io.*;
 import java.util.*;
+import java_cup.runtime.Scanner;
 
 action code {:
 :}
 
 parser code {:
-    /* this part is included in the parser class */
     public static void main (String args[]) throws Exception{
         new parser(new Yylex(System.in)).parse();
+    }
+
+    public void syntax_error(Symbol cur_token) {
+        System.err.println("[Error]:" + cur_token.left + ":" + cur_token.right + ": Syntax Error.");
+        System.exit(0);
     }
 :}
 
