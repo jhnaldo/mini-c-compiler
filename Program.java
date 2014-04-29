@@ -434,6 +434,11 @@ class WhileStmt extends Stmt {
             System.out.print("while(");
             expr.show_ast_c_ver();
             System.out.println(");");
+        }else{
+            System.out.print("while(");
+            expr.show_ast_c_ver();
+            System.out.println(");");
+            stmt.show_ast_c_ver();
         }
     }
 }
@@ -544,28 +549,214 @@ class CaseList extends Absyn {
     }
 }
 
-class CaseStmt extends Absyn {
-    Integer k;
+class CaseStmt extends Stmt {
+    Integer num;
     StmtList stmt_list;
     Boolean has_break;
 
-    public CaseStmt(Integer _k, StmtList sl, Boolean hb){
-        k = _k;
+    public CaseStmt(Integer k, StmtList sl, Boolean hb){
+        num = k;
         stmt_list = sl;
         has_break = hb;
     }
 
     public void show_ast_c_ver(){
-        System.out.println("case "+k+":");
+        System.out.println("case "+num+":");
         stmt_list.show_ast_c_ver();
         if(has_break) System.out.println("break;");
     }
 }
 
 class Expr extends Absyn {
-    public Expr(Pos s, Pos e){
+}
+
+class UnaryExpr extends Expr{
+    Expr expr;
+    String symbol;
+
+    public UnaryExpr(Expr ex, Pos s, Pos e){
+        expr = ex;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print(symbol);
+        expr.show_ast_c_ver();
+    }
+}
+class UnaryMinusExpr extends UnaryExpr {
+    public UnaryMinusExpr(Expr ex, Pos s, Pos e){
+        super(ex,s,e);
+        symbol = "-";
+    }
+}
+
+class BinaryExpr extends Expr{
+    Expr left_expr;
+    Expr right_expr;
+    String symbol;
+
+    public BinaryExpr(Expr le, Expr re, Pos s, Pos e){
+        left_expr = le;
+        right_expr = re;
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        left_expr.show_ast_c_ver();
+        System.out.print(symbol);
+        right_expr.show_ast_c_ver();
+    }
+}
+class MultExpr extends BinaryExpr {
+    public MultExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = "*";
+    }
+}
+class DivExpr extends BinaryExpr {
+    public DivExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = "/";
+    }
+}
+class PlusExpr extends BinaryExpr {
+    public PlusExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = "+";
+    }
+}
+class MinusExpr extends BinaryExpr {
+    public MinusExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = "-";
+    }
+}
+class GTExpr extends BinaryExpr {
+    public GTExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = ">";
+    }
+}
+class LTExpr extends BinaryExpr {
+    public LTExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = "<";
+    }
+}
+class GTEExpr extends BinaryExpr {
+    public GTEExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = ">=";
+    }
+}
+class LTEExpr extends BinaryExpr {
+    public LTEExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = "<=";
+    }
+}
+class EqualExpr extends BinaryExpr {
+    public EqualExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = "==";
+    }
+}
+class NotEqualExpr extends BinaryExpr {
+    public NotEqualExpr(Expr le, Expr re, Pos s, Pos e){
+        super(le,re,s,e);
+        symbol = "!=";
+    }
+}
+
+class CallExpr extends Expr {
+    Call call;
+
+    public CallExpr(Call c, Pos s, Pos e){
+        call = c;
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        call.show_ast_c_ver();
+    }
+}
+
+class IntExpr extends Expr {
+    Integer num;
+
+    public IntExpr(Integer k, Pos s, Pos e){
+        num = k;
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print(num);
+    }
+}
+
+class FloatExpr extends Expr {
+    Float num;
+
+    public FloatExpr(Float k, Pos s, Pos e){
+        num = k;
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print(num);
+    }
+}
+
+class SingleIdExpr extends Expr {
+    String name;
+
+    public SingleIdExpr(String n, Pos s, Pos e){
+        name = n;
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print(name);
+    }
+}
+
+class ArrayIdExpr extends Expr {
+    String name;
+    Expr expr;
+
+    public ArrayIdExpr(String n, Expr ex, Pos s, Pos e){
+        name = n;
+        expr = ex;
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print(name+"[");
+        expr.show_ast_c_ver();
+        System.out.print("]");
+    }
+}
+
+class ParenExpr extends Expr {
+    Expr expr;
+    public ParenExpr(Expr ex, Pos s, Pos e){
+        expr = ex;
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print("(");
+        expr.show_ast_c_ver();
+        System.out.print(")");
     }
 }
 

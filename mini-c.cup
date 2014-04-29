@@ -467,87 +467,87 @@ case_list ::=
 expr ::=
             MINUS:m expr:e
             {:
-                RESULT = new Expr(new Pos(mleft,mright), e.end);
+                RESULT = new UnaryMinusExpr(e, new Pos(mleft,mright), e.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := - Expr"+e.get_pos());
             :} %prec UMINUS
         |   expr:l MULT expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new MultExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" * Expr"+r.get_pos());
             :}
         |   expr:l DIV expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new DivExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" / Expr"+r.get_pos());
             :}
         |   expr:l PLUS expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new PlusExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" + Expr"+r.get_pos());
             :}
         |   expr:l MINUS expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new MinusExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" - Expr"+r.get_pos());
             :}
         |   expr:l GT expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new GTExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" > Expr"+r.get_pos());
             :}
         |   expr:l LT expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new LTExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" < Expr"+r.get_pos());
             :}
         |   expr:l GTE expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new GTEExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" >= Expr"+r.get_pos());
             :}
         |   expr:l LTE expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new LTEExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" <= Expr"+r.get_pos());
             :}
         |   expr:l EQ expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new EqualExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" == Expr"+r.get_pos());
             :}
         |   expr:l NEQ expr:r
             {:
-                RESULT = new Expr(l.start, r.end);
+                RESULT = new NotEqualExpr(l, r, l.start, r.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" != Expr"+r.get_pos());
             :}
         |   call:c
             {:
-                RESULT = new Expr(c.start, c.end);
+                RESULT = new CallExpr(c, c.start, c.end);
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Call"+c.get_pos());
             :}
         |   INTNUM:k
             {:
-                RESULT = new Expr(new Pos(kleft,kright), new Pos(kleft,kright+k.toString().length()-1));
+                RESULT = new IntExpr(k, new Pos(kleft,kright), new Pos(kleft,kright+k.toString().length()-1));
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := INT:"+k);
             :}
         |   FLOATNUM:k
             {:
-                RESULT = new Expr(new Pos(kleft,kright), new Pos(kleft,kright+k.toString().length()-1));
+                RESULT = new FloatExpr(k, new Pos(kleft,kright), new Pos(kleft,kright+k.toString().length()-1));
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := FLOAT:"+k);
             :}
         |   ID:i
             {:
-                RESULT = new Expr(new Pos(ileft,iright), new Pos(ileft,iright+i.length()-1));
+                RESULT = new SingleIdExpr(i, new Pos(ileft,iright), new Pos(ileft,iright+i.length()-1));
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := ID:'"+i+"'");
             :}
         |   ID:i LSBRACE expr:e RSBRACE:r
             {:
-                RESULT = new Expr(new Pos(ileft,iright), new Pos(rleft,rright));
+                RESULT = new ArrayIdExpr(i, e, new Pos(ileft,iright), new Pos(rleft,rright));
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := ID:'"+i+"' [ Expr"+e.get_pos()+" ]");
             :}
         |   LPAREN:l expr:e RPAREN:r
             {:
-                RESULT = new Expr(new Pos(lleft,lright), new Pos(rleft,rright));
+                RESULT = new ParenExpr(e, new Pos(lleft,lright), new Pos(rleft,rright));
                 Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := ( Expr"+e.get_pos()+" )");
             :}
         ;
