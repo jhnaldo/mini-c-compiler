@@ -1,7 +1,6 @@
 *.swp
 *.log
 *.swo
-*.c
 result
 *.class
 Yylex.java
