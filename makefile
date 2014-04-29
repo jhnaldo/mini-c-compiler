@@ -29,7 +29,7 @@ run:
 	$(JAVA) -classpath $(CLASSPATH) parser
 
 test:
-	$(JAVA) -classpath $(CLASSPATH) parser < test.c
+	$(JAVA) -classpath $(CLASSPATH) parser < test_inputs/my_test.c
 
 clean:
 	-rm *.class
