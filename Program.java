@@ -15,7 +15,7 @@ class Pos {
         return String.valueOf(linenum)+":"+String.valueOf(colnum);
     }
 }
-abstract class Absyn {
+class Absyn {
     public Pos start = null;
     public Pos end = null;
     public String get_pos(){
@@ -34,9 +34,14 @@ abstract class Absyn {
         }
         return "["+sstr+"-"+estr+"]";
     }
+    static private boolean show_prod_rule = false;
+    static public void display(String msg){
+        if (show_prod_rule)
+            System.out.println(msg);
+    }
 }
-abstract class Ident extends Absyn { }
-abstract class Stmt extends Absyn { }
+class Ident extends Absyn { }
+class Stmt extends Absyn { }
 
 class Program extends Absyn {
     DeclList decls;
