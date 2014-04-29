@@ -34,11 +34,14 @@ class Absyn {
         }
         return "["+sstr+"-"+estr+"]";
     }
-    static private boolean show_prod_rule = false;
-    static public void display(String msg){
-        if (show_prod_rule)
+    static public boolean prod_rule = false;
+    static public boolean ast_c_ver = true;
+    static public boolean sym_table = false;
+    static public void show_prod_rule(String msg){
+        if (prod_rule)
             System.out.println(msg);
     }
+    public void show_ast_c_ver(){ }
 }
 class Ident extends Absyn { }
 class Stmt extends Absyn { }
@@ -52,6 +55,11 @@ class Program extends Absyn {
         funcs = fl;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        if(decls!=null) decls.show_ast_c_ver();
+        if(funcs!=null) funcs.show_ast_c_ver();
     }
 }
 
@@ -69,6 +77,12 @@ class DeclList extends Absyn {
         arr.add(decl);
         end = decl.end;
     }
+
+    public void show_ast_c_ver(){
+        for(Decl d : arr){
+            d.show_ast_c_ver();
+        }
+    }
 }
 
 class FuncList extends Absyn {
@@ -85,6 +99,12 @@ class FuncList extends Absyn {
         arr.add(func);
         end = func.end;
     }
+
+    public void show_ast_c_ver(){
+        for(Func f : arr){
+            f.show_ast_c_ver();
+        }
+    }
 }
 
 class Decl extends Absyn {
@@ -96,6 +116,13 @@ class Decl extends Absyn {
         idents = idl;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        typ.show_ast_c_ver();
+        System.out.print(" ");
+        idents.show_ast_c_ver();
+        System.out.println(";");
     }
 }
 
@@ -113,6 +140,14 @@ class IdentList extends Absyn {
         arr.add(id);
         end = id.end;
     }
+
+    public void show_ast_c_ver(){
+        arr.get(0).show_ast_c_ver();
+        for(Ident i : arr.subList(1,arr.size())){
+            System.out.print(", ");
+            i.show_ast_c_ver();
+        }
+    }
 }
 
 class SingleIdent extends Ident {
@@ -125,6 +160,10 @@ class SingleIdent extends Ident {
         start = s;
         end = e;
     }
+
+    public void show_ast_c_ver(){
+        System.out.print(name);
+    }
 }
 
 class ArrayIdent extends Ident {
@@ -136,6 +175,10 @@ class ArrayIdent extends Ident {
         size=si;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print(name+"["+size+"]");
     }
 }
 
@@ -153,54 +196,80 @@ class Func extends Absyn {
         start = s;
         end = e;
     }
+
+    public void show_ast_c_ver(){
+        typ.show_ast_c_ver();
+        System.out.print(" "+name+" (");
+        if(params!=null){
+            params.show_ast_c_ver();
+        }
+        System.out.println(")");
+        comp_stmt.show_ast_c_ver();
+    }
 }
 
 class ParamList extends Absyn {
-    ArrayList<Type> tarr;
-    ArrayList<Ident> iarr;
+    ArrayList<Param> arr;
 
     public ParamList(Type t, Ident id, Pos s, Pos e) {
-        tarr = new ArrayList<Type>();
-        tarr.add(t);
-        iarr = new ArrayList<Ident>();
-        iarr.add(id);
+        arr = new ArrayList<Param>();
+        arr.add(new Param(t, id));
         start = s;
         end = e;
     }
 
     public void add(Type t, Ident id) {
-        tarr.add(t);
-        iarr.add(id);
+        arr.add(new Param(t, id));
         end = id.end;
+    }
+
+    public void show_ast_c_ver(){
+        arr.get(0).show_ast_c_ver();
+        for(Param p : arr.subList(1,arr.size())){
+            System.out.print(", ");
+            p.show_ast_c_ver();
+        }
     }
 }
 
-class Type extends Absyn {
-    Integer typ;
+class Param extends Absyn {
+    Type typ;
+    Ident ident;
 
-    public Type(Integer t, Pos s, Pos e) {
+    public Param(Type t, Ident id){
+        typ = t;
+        ident = id;
+    }
+
+    public void show_ast_c_ver(){
+        typ.show_ast_c_ver();
+        System.out.print(" ");
+        ident.show_ast_c_ver();
+    }
+}
+
+enum TypeName {
+    INT, FLOAT;
+}
+
+class Type extends Absyn {
+    TypeName typ;
+
+    public Type(TypeName t, Pos s, Pos e) {
         typ = t;
         start = s;
         end = e;
     }
-}
 
-class CompStmt extends Stmt{
-    DeclList decls;
-    StmtList stmts;
-
-    public CompStmt(DeclList dl, StmtList sl, Pos s, Pos e) {
-        decls = dl;
-        stmts = sl;
-        start = s;
-        end = e;
-    }
-}
-
-class NullStmt extends Stmt{
-    public NullStmt(Pos s, Pos e) {
-        start = s;
-        end = e;
+    public void show_ast_c_ver(){
+        switch(typ){
+            case INT:
+                System.out.print("int");
+                break;
+            case FLOAT:
+                System.out.print("float");
+                break;
+        }
     }
 }
 
@@ -219,6 +288,42 @@ class StmtList extends Absyn {
             start = s.start;
         end = s.end;
     }
+
+    public void show_ast_c_ver(){
+        for(Stmt s : arr){
+            s.show_ast_c_ver();
+        }
+    }
+}
+
+class CompStmt extends Stmt{
+    DeclList decls;
+    StmtList stmts;
+
+    public CompStmt(DeclList dl, StmtList sl, Pos s, Pos e) {
+        decls = dl;
+        stmts = sl;
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.println("{");
+        if(decls!=null)decls.show_ast_c_ver();
+        stmts.show_ast_c_ver();
+        System.out.println("}");
+    }
+}
+
+class NullStmt extends Stmt{
+    public NullStmt(Pos s, Pos e) {
+        start = s;
+        end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.println(";");
+    }
 }
 
 class AssignStmt extends Stmt {
@@ -228,6 +333,11 @@ class AssignStmt extends Stmt {
         assign = as;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        assign.show_ast_c_ver();
+        System.out.println(";");
     }
 }
 
@@ -242,6 +352,17 @@ class Assign extends Absyn {
         start = s;
         end = e;
     }
+
+    public void show_ast_c_ver(){
+        System.out.print(name);
+        if(index!=null){
+            System.out.print("[");
+            index.show_ast_c_ver();
+            System.out.print("]");
+        }
+        System.out.print(" = ");
+        expr.show_ast_c_ver();
+    }
 }
 
 class CallStmt extends Stmt {
@@ -251,6 +372,11 @@ class CallStmt extends Stmt {
         call = c;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        call.show_ast_c_ver();
+        System.out.println(";");
     }
 }
 
@@ -264,6 +390,12 @@ class Call extends Absyn {
         start = s;
         end = e;
     }
+
+    public void show_ast_c_ver(){
+        System.out.print(name+"(");
+        if(args!=null)args.show_ast_c_ver();
+        System.out.print(")");
+    }
 }
 
 class RetStmt extends Stmt {
@@ -273,6 +405,12 @@ class RetStmt extends Stmt {
         expr = ex;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print("return ");
+        if(expr!=null)expr.show_ast_c_ver();
+        System.out.println(";");
     }
 }
 
@@ -287,6 +425,16 @@ class WhileStmt extends Stmt {
         is_do = d;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        if(is_do){
+            System.out.println("do");
+            stmt.show_ast_c_ver();
+            System.out.print("while(");
+            expr.show_ast_c_ver();
+            System.out.println(");");
+        }
     }
 }
 
@@ -304,6 +452,17 @@ class ForStmt extends Stmt {
         start = s;
         end = e;
     }
+
+    public void show_ast_c_ver(){
+        System.out.print("for(");
+        initial.show_ast_c_ver();
+        System.out.print("; ");
+        condition.show_ast_c_ver();
+        System.out.print("; ");
+        incl.show_ast_c_ver();
+        System.out.println(")");
+        stmt.show_ast_c_ver();
+    }
 }
 
 class IfStmt extends Stmt {
@@ -316,6 +475,17 @@ class IfStmt extends Stmt {
         else_stmt = el;
         start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.print("if(");
+        condition.show_ast_c_ver();
+        System.out.println(")");
+        then_stmt.show_ast_c_ver();
+        if(else_stmt!=null){
+            System.out.println("else");
+            else_stmt.show_ast_c_ver();
+        }
     }
 }
 
@@ -333,28 +503,62 @@ class SwitchStmt extends Stmt {
         start = s;
         end = e;
     }
+
+    public void show_ast_c_ver(){
+        System.out.print("switch(");
+        ident.show_ast_c_ver();
+        System.out.println(")");
+        System.out.println("{");
+        cases.show_ast_c_ver();
+        if(default_stmt!=null){
+            System.out.println("default:");
+            default_stmt.show_ast_c_ver();
+            if(default_has_break){
+                System.out.println("break;");
+            }
+        }
+        System.out.println("}");
+    }
 }
 
 class CaseList extends Absyn {
-    ArrayList<Integer> iarr;
-    ArrayList<StmtList> sarr;
-    ArrayList<Boolean> barr;
+    ArrayList<CaseStmt> arr;
 
     public CaseList(Pos s, Pos e) {
-        iarr = new ArrayList<Integer>();
-        sarr = new ArrayList<StmtList>();
-        barr = new ArrayList<Boolean>();
+        arr = new ArrayList<CaseStmt>();
         start = s;
         end = e;
     }
 
     public void add(Integer k, StmtList sl, Boolean hb, Pos s, Pos e){
-        iarr.add(k);
-        sarr.add(sl);
-        barr.add(hb);
-        if (iarr.size() == 1)
+        arr.add(new CaseStmt(k, sl, hb));
+        if (arr.size() == 1)
             start = s;
         end = e;
+    }
+
+    public void show_ast_c_ver(){
+        for(CaseStmt c : arr){
+            c.show_ast_c_ver();
+        }
+    }
+}
+
+class CaseStmt extends Absyn {
+    Integer k;
+    StmtList stmt_list;
+    Boolean has_break;
+
+    public CaseStmt(Integer _k, StmtList sl, Boolean hb){
+        k = _k;
+        stmt_list = sl;
+        has_break = hb;
+    }
+
+    public void show_ast_c_ver(){
+        System.out.println("case "+k+":");
+        stmt_list.show_ast_c_ver();
+        if(has_break) System.out.println("break;");
     }
 }
 
@@ -378,5 +582,13 @@ class ArgList extends Absyn {
     public void add(Expr ex) {
         arr.add(ex);
         end = ex.end;
+    }
+
+    public void show_ast_c_ver(){
+        arr.get(0).show_ast_c_ver();
+        for(Expr e : arr.subList(1,arr.size())){
+            System.out.print(", ");
+            e.show_ast_c_ver();
+        }
     }
 }

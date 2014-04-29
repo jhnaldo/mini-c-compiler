@@ -27,6 +27,7 @@ terminal Integer    INTNUM;
 terminal Float      FLOATNUM;
 terminal String     ID;
 
+non terminal Absyn          base;
 non terminal Program        program;
 non terminal DeclList       decl_list;
 non terminal FuncList       func_list;
@@ -60,25 +61,33 @@ precedence left     MULT, DIV;
 precedence right    UMINUS;
 precedence left     RBRACE, LBRACE;
 
+base ::= 
+            program:p
+            {:
+                if (Absyn.ast_c_ver)
+                    p.show_ast_c_ver();
+            :}
+        ;
+
 program ::= 
             {:
-                Program p = new Program(null, null, null, null);
-                Absyn.display("Program"+p.get_pos()+" := ");
+                RESULT = new Program(null, null, null, null);
+                Absyn.show_prod_rule("Program"+RESULT.get_pos()+" := ");
             :}
         |   decl_list:dl
             {:
-                Program p = new Program(dl, null, dl.start, dl.end);
-                Absyn.display("Program"+p.get_pos()+" := DeclList"+dl.get_pos());
+                RESULT = new Program(dl, null, dl.start, dl.end);
+                Absyn.show_prod_rule("Program"+RESULT.get_pos()+" := DeclList"+dl.get_pos());
             :}
         |   func_list:fl
             {:
-                Program p = new Program(null, fl, fl.start, fl.end);
-                Absyn.display("Program"+p.get_pos()+" := FuncList"+fl.get_pos());
+                RESULT = new Program(null, fl, fl.start, fl.end);
+                Absyn.show_prod_rule("Program"+RESULT.get_pos()+" := FuncList"+fl.get_pos());
             :}
         |   decl_list:dl func_list:fl
             {:
-                Program p = new Program(dl, fl, dl.start, fl.end);
-                Absyn.display("Program"+p.get_pos()+" := DeclList"+dl.get_pos()+" FuncList"+fl.get_pos());
+                RESULT = new Program(dl, fl, dl.start, fl.end);
+                Absyn.show_prod_rule("Program"+RESULT.get_pos()+" := DeclList"+dl.get_pos()+" FuncList"+fl.get_pos());
             :}
         ;
 
@@ -86,13 +95,13 @@ decl_list ::=
             decl:d
             {:
                 RESULT = new DeclList(d, d.start, d.end);
-                Absyn.display("DeclList"+RESULT.get_pos()+" := Declaration"+d.get_pos());
+                Absyn.show_prod_rule("DeclList"+RESULT.get_pos()+" := Declaration"+d.get_pos());
             :}
         |   decl_list:dl decl:d
             {:
                 String temp = dl.get_pos();
                 dl.add(d); RESULT = dl;
-                Absyn.display("DeclList"+RESULT.get_pos()+" := DeclList"+temp+" Declaration"+d.get_pos());
+                Absyn.show_prod_rule("DeclList"+RESULT.get_pos()+" := DeclList"+temp+" Declaration"+d.get_pos());
             :}
         ;
 
@@ -100,13 +109,13 @@ func_list ::=
             func:f
             {:
                 RESULT = new FuncList(f, f.start, f.end);
-                Absyn.display("FuncList"+RESULT.get_pos()+" := Function"+f.get_pos());
+                Absyn.show_prod_rule("FuncList"+RESULT.get_pos()+" := Function"+f.get_pos());
             :}
         |   func_list:fl func:f
             {:
                 String temp = fl.get_pos();
                 fl.add(f); RESULT = fl;
-                Absyn.display("FuncList"+RESULT.get_pos()+" := FuncList"+temp+" Function"+f.get_pos());
+                Absyn.show_prod_rule("FuncList"+RESULT.get_pos()+" := FuncList"+temp+" Function"+f.get_pos());
             :}
         ;
 
@@ -114,7 +123,7 @@ decl ::=
             type:t ident_list:idl SEMI:s
             {:
                 RESULT = new Decl(t,idl,t.start,new Pos(sleft,sright));
-                Absyn.display("Declaration"+RESULT.get_pos()+" := Type"+t.get_pos()+" IdentList"+idl.get_pos()+" ;");
+                Absyn.show_prod_rule("Declaration"+RESULT.get_pos()+" := Type"+t.get_pos()+" IdentList"+idl.get_pos()+" ;");
             :}
         ;
 
@@ -122,13 +131,13 @@ ident_list ::=
             ident:id
             {:
                 RESULT = new IdentList(id,id.start,id.end);
-                Absyn.display("IdentList"+RESULT.get_pos()+" := Identifier"+id.get_pos());
+                Absyn.show_prod_rule("IdentList"+RESULT.get_pos()+" := Identifier"+id.get_pos());
             :}
         |   ident_list:idl COMMA ident:id
             {:
                 String temp = idl.get_pos();
                 idl.add(id); RESULT = idl;
-                Absyn.display("IdentList"+RESULT.get_pos()+" := IdentList"+temp+" , Identifier"+id.get_pos());
+                Absyn.show_prod_rule("IdentList"+RESULT.get_pos()+" := IdentList"+temp+" , Identifier"+id.get_pos());
             :}
         ;
 
@@ -136,12 +145,12 @@ ident ::=
             ID:id
             {:
                 RESULT = new SingleIdent(id,new Pos(idleft,idright),new Pos(idleft,idright+id.length()-1));
-                Absyn.display("Identifier"+RESULT.get_pos()+" := ID:'"+id+"'");
+                Absyn.show_prod_rule("Identifier"+RESULT.get_pos()+" := ID:'"+id+"'");
             :}
         |   ID:id LSBRACE INTNUM:k RSBRACE:r
             {:
                 RESULT = new ArrayIdent(id,k,new Pos(idleft,idright),new Pos(idleft, idright));
-                Absyn.display("Identifier"+RESULT.get_pos()+" := ID:'"+id+"' [ INT:"+k+" ]");
+                Absyn.show_prod_rule("Identifier"+RESULT.get_pos()+" := ID:'"+id+"' [ INT:"+k+" ]");
             :}
         ;
 
@@ -149,12 +158,12 @@ func ::=
             type:t ID:fn LPAREN RPAREN comp_stmt:cs
             {:
                 RESULT = new Func(t,fn,null,cs,t.start,cs.end);
-                Absyn.display("Function"+RESULT.get_pos()+" := Type"+t.get_pos()+" ID:'"+fn+"' ( ) CompoundStmt"+cs.get_pos());
+                Absyn.show_prod_rule("Function"+RESULT.get_pos()+" := Type"+t.get_pos()+" ID:'"+fn+"' ( ) CompoundStmt"+cs.get_pos());
             :}
         |   type:t ID:fn LPAREN param_list:pl RPAREN comp_stmt:cs
             {:
                 RESULT = new Func(t,fn,pl,cs,t.start,cs.end);
-                Absyn.display("Function"+RESULT.get_pos()+" := Type"+t.get_pos()+" ID:'"+fn+"' ( ParamList"+pl.get_pos()+" ) CompoundStmt"+cs.get_pos());
+                Absyn.show_prod_rule("Function"+RESULT.get_pos()+" := Type"+t.get_pos()+" ID:'"+fn+"' ( ParamList"+pl.get_pos()+" ) CompoundStmt"+cs.get_pos());
             :}
         ;
 
@@ -162,26 +171,26 @@ param_list ::=
             type:t ident:id
             {:
                 RESULT = new ParamList(t,id,t.start,id.end);
-                Absyn.display("ParamList"+RESULT.get_pos()+" := Type"+t.get_pos()+" Ident"+id.get_pos());
+                Absyn.show_prod_rule("ParamList"+RESULT.get_pos()+" := Type"+t.get_pos()+" Ident"+id.get_pos());
             :}
         |   param_list:pl COMMA type:t ident:id
             {:
                 String temp = pl.get_pos();
                 pl.add(t,id); RESULT = pl;
-                Absyn.display("ParamList"+RESULT.get_pos()+" := ParamList"+temp+" , Type"+t.get_pos()+"Ident"+id.get_pos());
+                Absyn.show_prod_rule("ParamList"+RESULT.get_pos()+" := ParamList"+temp+" , Type"+t.get_pos()+"Ident"+id.get_pos());
             :}
         ;
 
 type ::=
             INT:k
             {:
-                RESULT = new Type(0,new Pos(kleft,kright),new Pos(kleft,kright+2));
-                Absyn.display("Type"+RESULT.get_pos()+" := int");
+                RESULT = new Type(TypeName.INT,new Pos(kleft,kright),new Pos(kleft,kright+2));
+                Absyn.show_prod_rule("Type"+RESULT.get_pos()+" := int");
             :}
         |   FLOAT:k
             {:
-                RESULT = new Type(1,new Pos(kleft,kright),new Pos(kleft,kright+4));
-                Absyn.display("Type"+RESULT.get_pos()+" := float");
+                RESULT = new Type(TypeName.FLOAT,new Pos(kleft,kright),new Pos(kleft,kright+4));
+                Absyn.show_prod_rule("Type"+RESULT.get_pos()+" := float");
             :}
         ;
 
@@ -189,25 +198,25 @@ comp_stmt ::=
             LBRACE:l stmt_list:sl RBRACE:r
             {:
                 RESULT = new CompStmt(null, sl,new Pos(lleft,lright), new Pos(rleft, rright));
-                Absyn.display("CompoundStmt"+RESULT.get_pos()+" := { StmtList"+sl.get_pos()+" }");
+                Absyn.show_prod_rule("CompoundStmt"+RESULT.get_pos()+" := { StmtList"+sl.get_pos()+" }");
             :}
         |   LBRACE:l decl_list:dl stmt_list:sl RBRACE:r
             {:
                 RESULT = new CompStmt(dl, sl, new Pos(lleft,lright), new Pos(rleft, rright));
-                Absyn.display("CompoundStmt"+RESULT.get_pos()+" := { DeclList"+dl.get_pos()+" StmtList"+sl.get_pos()+" }");
+                Absyn.show_prod_rule("CompoundStmt"+RESULT.get_pos()+" := { DeclList"+dl.get_pos()+" StmtList"+sl.get_pos()+" }");
             :}
         ;
 
 stmt_list ::=
             {:
                 RESULT = new StmtList(null,null);
-                Absyn.display("StmtList :="+RESULT.get_pos()+" :=");
+                Absyn.show_prod_rule("StmtList :="+RESULT.get_pos()+" :=");
             :}
         |   stmt_list:sl stmt:s
             {:
                 String temp = sl.get_pos();
                 sl.add(s); RESULT = sl;
-                Absyn.display("StmtList"+RESULT.get_pos()+" := StmtList"+temp+" Stmt"+s.get_pos());
+                Absyn.show_prod_rule("StmtList"+RESULT.get_pos()+" := StmtList"+temp+" Stmt"+s.get_pos());
             :}
         ;
 
@@ -215,12 +224,12 @@ stmt ::=
             open_stmt:os
             {:
                 RESULT = os;
-                Absyn.display("Stmt"+RESULT.get_pos()+" := OpenStmt"+os.get_pos());
+                Absyn.show_prod_rule("Stmt"+RESULT.get_pos()+" := OpenStmt"+os.get_pos());
             :}
         |   closed_stmt:cs
             {:
                 RESULT = cs;
-                Absyn.display("Stmt"+RESULT.get_pos()+" := ClosedStmt"+cs.get_pos());
+                Absyn.show_prod_rule("Stmt"+RESULT.get_pos()+" := ClosedStmt"+cs.get_pos());
             :}
         ;
 
@@ -228,22 +237,22 @@ open_stmt ::=
             if_stmt:s
             {:
                 RESULT = s;
-                Absyn.display("OpenStmt"+RESULT.get_pos()+" := IfStmt"+s.get_pos());
+                Absyn.show_prod_rule("OpenStmt"+RESULT.get_pos()+" := IfStmt"+s.get_pos());
             :}
         |   if_open_else_stmt:s
             {:
                 RESULT = s;
-                Absyn.display("OpenStmt"+RESULT.get_pos()+" := IfOpenElseStmt"+s.get_pos());
+                Absyn.show_prod_rule("OpenStmt"+RESULT.get_pos()+" := IfOpenElseStmt"+s.get_pos());
             :}
         |   for_open_stmt:s
             {:
                 RESULT = s;
-                Absyn.display("OpenStmt"+RESULT.get_pos()+" := ForOpenStmt"+s.get_pos());
+                Absyn.show_prod_rule("OpenStmt"+RESULT.get_pos()+" := ForOpenStmt"+s.get_pos());
             :}
         |   while_open_stmt:s
             {:
                 RESULT = s;
-                Absyn.display("OpenStmt"+RESULT.get_pos()+" := WhileOpenStmt"+s.get_pos());
+                Absyn.show_prod_rule("OpenStmt"+RESULT.get_pos()+" := WhileOpenStmt"+s.get_pos());
             :}
         ;
 
@@ -251,52 +260,52 @@ closed_stmt ::=
             assign_stmt:as
             {:
                 RESULT = as;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := AssignStmt"+as.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := AssignStmt"+as.get_pos());
             :}
         |   call_stmt:ca
             {:
                 RESULT = ca;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := CallStmt"+ca.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := CallStmt"+ca.get_pos());
             :}
         |   ret_stmt:ret
             {:
                 RESULT = ret;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := RetStmt"+ret.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := RetStmt"+ret.get_pos());
             :}
         |   switch_stmt:sw
             {:
                 RESULT = sw;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := SwitchStmt"+sw.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := SwitchStmt"+sw.get_pos());
             :}
         |   comp_stmt:cs
             {:
                 RESULT = cs;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := CompoundStmt"+cs.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := CompoundStmt"+cs.get_pos());
             :}
         |   if_closed_else_stmt:s
             {:
                 RESULT = s;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := IfClosedElseStmt"+s.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := IfClosedElseStmt"+s.get_pos());
             :}
         |   for_closed_stmt:s
             {:
                 RESULT = s;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := ForClosedStmt"+s.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := ForClosedStmt"+s.get_pos());
             :}
         |   while_closed_stmt:s
             {:
                 RESULT = s;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := WhileClosedStmt"+s.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := WhileClosedStmt"+s.get_pos());
             :}
         |   do_stmt:s
             {:
                 RESULT = s;
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := DoWhileStmt"+s.get_pos());
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := DoWhileStmt"+s.get_pos());
             :}
         |   SEMI:s
             {:
                 RESULT = new NullStmt(new Pos(sleft,sright),new Pos(sleft,sright));
-                Absyn.display("ClosedStmt"+RESULT.get_pos()+" := ;");
+                Absyn.show_prod_rule("ClosedStmt"+RESULT.get_pos()+" := ;");
             :}
         ;
 
@@ -304,7 +313,7 @@ assign_stmt ::=
             assign:as SEMI:s
             {:
                 RESULT = new AssignStmt(as,as.start,new Pos(sleft,sright));
-                Absyn.display("AssignStmt"+RESULT.get_pos()+" := Assign"+as.get_pos()+" ;");
+                Absyn.show_prod_rule("AssignStmt"+RESULT.get_pos()+" := Assign"+as.get_pos()+" ;");
             :}
         ;
 
@@ -312,12 +321,12 @@ assign ::=
             ID:id ASSIGN expr:e
             {:
                 RESULT = new Assign(id,null,e,new Pos(idleft,idright+id.length()-1),e.end);
-                Absyn.display("Assign"+RESULT.get_pos()+" := ID:'"+id+"' = Expr"+e.get_pos());
+                Absyn.show_prod_rule("Assign"+RESULT.get_pos()+" := ID:'"+id+"' = Expr"+e.get_pos());
             :}
         |   ID:id LSBRACE expr:idx RSBRACE ASSIGN expr:e
             {:
                 RESULT = new Assign(id,idx,e,new Pos(idleft,idright+id.length()-1),e.end);
-                Absyn.display("Assign"+RESULT.get_pos()+" := ID:'"+id+"' [ Expr"+idx.get_pos()+" ] = Expr"+e.get_pos());
+                Absyn.show_prod_rule("Assign"+RESULT.get_pos()+" := ID:'"+id+"' [ Expr"+idx.get_pos()+" ] = Expr"+e.get_pos());
             :}
         ;
 
@@ -325,19 +334,19 @@ call_stmt ::=
             call:c SEMI:s
             {:
                 RESULT = new CallStmt(c, c.start, new Pos(sleft,sright));
-                Absyn.display("CallStmt"+RESULT.get_pos()+" := Call"+c.get_pos()+" ;");
+                Absyn.show_prod_rule("CallStmt"+RESULT.get_pos()+" := Call"+c.get_pos()+" ;");
             :}
         ;
 call ::=
             ID:id LPAREN RPAREN:r
             {:
                 RESULT = new Call(id,null,new Pos(idleft,idright),new Pos(rleft,rright));
-                Absyn.display("Call"+RESULT.get_pos()+" := ID:'"+id+"' ( )");
+                Absyn.show_prod_rule("Call"+RESULT.get_pos()+" := ID:'"+id+"' ( )");
             :}
         |   ID:id LPAREN arg_list:al RPAREN:r
             {:
                 RESULT = new Call(id,al,new Pos(idleft,idright),new Pos(rleft,rright));
-                Absyn.display("Call"+RESULT.get_pos()+" := ID:'"+id+"' ( ArgList"+al.get_pos()+" )");
+                Absyn.show_prod_rule("Call"+RESULT.get_pos()+" := ID:'"+id+"' ( ArgList"+al.get_pos()+" )");
             :}
         ;
 
@@ -345,12 +354,12 @@ ret_stmt ::=
             RETURN:r SEMI:s
             {:
                 RESULT = new RetStmt(null,new Pos(rleft,rright), new Pos(sleft,sright));
-                Absyn.display("RetStmt"+RESULT.get_pos()+" := return ;");
+                Absyn.show_prod_rule("RetStmt"+RESULT.get_pos()+" := return ;");
             :}
         |   RETURN:r expr:e SEMI:s
             {:
                 RESULT = new RetStmt(e,new Pos(rleft,rright), new Pos(sleft,sright));
-                Absyn.display("RetStmt"+RESULT.get_pos()+" := return Expr"+e.get_pos()+" ;");
+                Absyn.show_prod_rule("RetStmt"+RESULT.get_pos()+" := return Expr"+e.get_pos()+" ;");
             :}
         ;
 
@@ -358,7 +367,7 @@ if_stmt ::=
             IF:i LPAREN expr:cond RPAREN stmt:th
             {:
                 RESULT = new IfStmt(cond,th,null,new Pos(ileft,iright), th.end);
-                Absyn.display("IfStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) Stmt"+th.get_pos());
+                Absyn.show_prod_rule("IfStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) Stmt"+th.get_pos());
             :}
         ;
 
@@ -366,7 +375,7 @@ if_open_else_stmt ::=
             IF:i LPAREN expr:cond RPAREN closed_stmt:th ELSE open_stmt:el
             {:
                 RESULT = new IfStmt(cond,th,el,new Pos(ileft,iright), el.end);
-                Absyn.display("IfOpenElseStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) ClosedStmt"+th.get_pos()+" else OpenStmt"+el.get_pos());
+                Absyn.show_prod_rule("IfOpenElseStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) ClosedStmt"+th.get_pos()+" else OpenStmt"+el.get_pos());
             :}
         ;
 
@@ -374,7 +383,7 @@ if_closed_else_stmt ::=
             IF:i LPAREN expr:cond RPAREN closed_stmt:th ELSE closed_stmt:el
             {:
                 RESULT = new IfStmt(cond,th,el,new Pos(ileft,iright), el.end);
-                Absyn.display("IfClosedElseStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) ClosedStmt"+th.get_pos()+" else ClosedStmt"+el.get_pos());
+                Absyn.show_prod_rule("IfClosedElseStmt"+RESULT.get_pos()+" := if ( Expr"+cond.get_pos()+" ) ClosedStmt"+th.get_pos()+" else ClosedStmt"+el.get_pos());
             :}
         ;
 
@@ -382,7 +391,7 @@ while_open_stmt ::=
             WHILE:w LPAREN expr:e RPAREN open_stmt:st
             {:
                 RESULT = new WhileStmt(e,st,false,new Pos(wleft,wright), st.end);
-                Absyn.display("WhileOpenStmt"+RESULT.get_pos()+" := while ( Expr"+e.get_pos()+" ) OpenStmt"+st.get_pos()+" ;");
+                Absyn.show_prod_rule("WhileOpenStmt"+RESULT.get_pos()+" := while ( Expr"+e.get_pos()+" ) OpenStmt"+st.get_pos()+" ;");
             :}
         ;
 
@@ -390,7 +399,7 @@ while_closed_stmt ::=
             WHILE:w LPAREN expr:e RPAREN closed_stmt:st
             {:
                 RESULT = new WhileStmt(e,st,false,new Pos(wleft,wright), st.end);
-                Absyn.display("WhileClosedStmt"+RESULT.get_pos()+" := while ( Expr"+e.get_pos()+" ) ClosedStmt"+st.get_pos()+" ;");
+                Absyn.show_prod_rule("WhileClosedStmt"+RESULT.get_pos()+" := while ( Expr"+e.get_pos()+" ) ClosedStmt"+st.get_pos()+" ;");
             :}
         ;
 
@@ -398,7 +407,7 @@ for_open_stmt ::=
             FOR:f LPAREN assign:init SEMI expr:cond SEMI assign:as RPAREN open_stmt:st
             {:
                 RESULT = new ForStmt(init,cond,as,st,new Pos(fleft,fright),st.end);
-                Absyn.display("ForOpenStmt"+RESULT.get_pos()+" := for ( Assign"+init.get_pos()+" ; Expr"+cond.get_pos()+" ; Assign+"+as.get_pos()+" ) OpenStmt"+st.get_pos());
+                Absyn.show_prod_rule("ForOpenStmt"+RESULT.get_pos()+" := for ( Assign"+init.get_pos()+" ; Expr"+cond.get_pos()+" ; Assign+"+as.get_pos()+" ) OpenStmt"+st.get_pos());
             :}
         ;
 
@@ -406,7 +415,7 @@ for_closed_stmt ::=
             FOR:f LPAREN assign:init SEMI expr:cond SEMI assign:as RPAREN closed_stmt:st
             {:
                 RESULT = new ForStmt(init,cond,as,st,new Pos(fleft,fright),st.end);
-                Absyn.display("ForClosedStmt"+RESULT.get_pos()+" := for ( Assign"+init.get_pos()+" ; Expr"+cond.get_pos()+" ; Assign"+as.get_pos()+" ) ClosedStmt"+st.get_pos());
+                Absyn.show_prod_rule("ForClosedStmt"+RESULT.get_pos()+" := for ( Assign"+init.get_pos()+" ; Expr"+cond.get_pos()+" ; Assign"+as.get_pos()+" ) ClosedStmt"+st.get_pos());
             :}
         ;
 
@@ -414,7 +423,7 @@ do_stmt ::=
             DO:d stmt:st WHILE LPAREN expr:e RPAREN SEMI:s
             {:
                 RESULT = new WhileStmt(e,st,true,new Pos(dleft,dright), new Pos(sleft,sright));
-                Absyn.display("WhileStmt"+RESULT.get_pos()+" : = do Stmt"+st.get_pos()+" while ( Expr"+e.get_pos()+" ) ;");
+                Absyn.show_prod_rule("WhileStmt"+RESULT.get_pos()+" : = do Stmt"+st.get_pos()+" while ( Expr"+e.get_pos()+" ) ;");
             :}
         ;
 
@@ -422,36 +431,36 @@ switch_stmt ::=
             SWITCH:s LPAREN ident:id RPAREN LBRACE case_list:cl RBRACE:r
             {:
                 RESULT = new SwitchStmt(id,cl,null,false,new Pos(sleft,sright), new Pos(rleft,rright));
-                Absyn.display("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" }");
+                Absyn.show_prod_rule("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" }");
             :}
         |   SWITCH:s LPAREN ident:id RPAREN LBRACE case_list:cl DEFAULT COLON stmt_list:ds RBRACE:r
             {:
                 RESULT = new SwitchStmt(id,cl,ds,false,new Pos(sleft,sright), new Pos(rleft,rright));
-                Absyn.display("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" default : StmtList"+ds.get_pos()+" }");
+                Absyn.show_prod_rule("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" default : StmtList"+ds.get_pos()+" }");
             :}
         |   SWITCH:s LPAREN ident:id RPAREN LBRACE case_list:cl DEFAULT COLON stmt_list:ds BREAK SEMI RBRACE:r
             {:
                 RESULT = new SwitchStmt(id,cl,ds,true,new Pos(sleft,sright),new Pos(rleft,rright));
-                Absyn.display("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" default : StmtList"+ds.get_pos()+" break ; }");
+                Absyn.show_prod_rule("SwitchStmt"+RESULT.get_pos()+" := switch ( Identifier"+id.get_pos()+" ) { CaseList"+cl.get_pos()+" default : StmtList"+ds.get_pos()+" break ; }");
             :}
         ;
 
 case_list ::=
             {:
                 RESULT = new CaseList(null, null);
-                Absyn.display("CaseList"+RESULT.get_pos()+" :=");
+                Absyn.show_prod_rule("CaseList"+RESULT.get_pos()+" :=");
             :}
         |   case_list:cl CASE:c INTNUM:k COLON stmt_list:sl
             {:
                 String temp = cl.get_pos();
                 cl.add(k,sl,false,new Pos(cleft,cright), sl.end); RESULT = cl;
-                Absyn.display("CaseList"+RESULT.get_pos()+" := CaseList"+temp+" case INT:"+k+" : StmtList"+sl.get_pos());
+                Absyn.show_prod_rule("CaseList"+RESULT.get_pos()+" := CaseList"+temp+" case INT:"+k+" : StmtList"+sl.get_pos());
             :}
         |   case_list:cl CASE:c INTNUM:k COLON stmt_list:sl BREAK SEMI:s
             {:
                 String temp = cl.get_pos();
                 cl.add(k,sl,true,new Pos(cleft,cright), new Pos(sleft,sright)); RESULT = cl;
-                Absyn.display("CaseList"+RESULT.get_pos()+" := CaseList"+temp+" case INT:"+k+" : StmtList"+sl.get_pos()+" break ;");
+                Absyn.show_prod_rule("CaseList"+RESULT.get_pos()+" := CaseList"+temp+" case INT:"+k+" : StmtList"+sl.get_pos()+" break ;");
             :}
         ;
 
@@ -459,87 +468,87 @@ expr ::=
             MINUS:m expr:e
             {:
                 RESULT = new Expr(new Pos(mleft,mright), e.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := - Expr"+e.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := - Expr"+e.get_pos());
             :} %prec UMINUS
         |   expr:l MULT expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" * Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" * Expr"+r.get_pos());
             :}
         |   expr:l DIV expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" / Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" / Expr"+r.get_pos());
             :}
         |   expr:l PLUS expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" + Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" + Expr"+r.get_pos());
             :}
         |   expr:l MINUS expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" - Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" - Expr"+r.get_pos());
             :}
         |   expr:l GT expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" > Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" > Expr"+r.get_pos());
             :}
         |   expr:l LT expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" < Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" < Expr"+r.get_pos());
             :}
         |   expr:l GTE expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" >= Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" >= Expr"+r.get_pos());
             :}
         |   expr:l LTE expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" <= Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" <= Expr"+r.get_pos());
             :}
         |   expr:l EQ expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" == Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" == Expr"+r.get_pos());
             :}
         |   expr:l NEQ expr:r
             {:
                 RESULT = new Expr(l.start, r.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" != Expr"+r.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Expr"+l.get_pos()+" != Expr"+r.get_pos());
             :}
         |   call:c
             {:
                 RESULT = new Expr(c.start, c.end);
-                Absyn.display("Expr"+RESULT.get_pos()+" := Call"+c.get_pos());
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := Call"+c.get_pos());
             :}
         |   INTNUM:k
             {:
                 RESULT = new Expr(new Pos(kleft,kright), new Pos(kleft,kright+k.toString().length()-1));
-                Absyn.display("Expr"+RESULT.get_pos()+" := INT:"+k);
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := INT:"+k);
             :}
         |   FLOATNUM:k
             {:
                 RESULT = new Expr(new Pos(kleft,kright), new Pos(kleft,kright+k.toString().length()-1));
-                Absyn.display("Expr"+RESULT.get_pos()+" := FLOAT:"+k);
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := FLOAT:"+k);
             :}
         |   ID:i
             {:
                 RESULT = new Expr(new Pos(ileft,iright), new Pos(ileft,iright+i.length()-1));
-                Absyn.display("Expr"+RESULT.get_pos()+" := ID:'"+i+"'");
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := ID:'"+i+"'");
             :}
         |   ID:i LSBRACE expr:e RSBRACE:r
             {:
                 RESULT = new Expr(new Pos(ileft,iright), new Pos(rleft,rright));
-                Absyn.display("Expr"+RESULT.get_pos()+" := ID:'"+i+"' [ Expr"+e.get_pos()+" ]");
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := ID:'"+i+"' [ Expr"+e.get_pos()+" ]");
             :}
         |   LPAREN:l expr:e RPAREN:r
             {:
                 RESULT = new Expr(new Pos(lleft,lright), new Pos(rleft,rright));
-                Absyn.display("Expr"+RESULT.get_pos()+" := ( Expr"+e.get_pos()+" )");
+                Absyn.show_prod_rule("Expr"+RESULT.get_pos()+" := ( Expr"+e.get_pos()+" )");
             :}
         ;
 
@@ -547,12 +556,12 @@ arg_list ::=
             expr:e
             {:
                 RESULT = new ArgList(e,e.start,e.end);
-                Absyn.display("ArgList"+RESULT.get_pos()+" := Expr"+e.get_pos());
+                Absyn.show_prod_rule("ArgList"+RESULT.get_pos()+" := Expr"+e.get_pos());
             :}
         |   arg_list:al COMMA expr:e
             {:
                 String temp = al.get_pos();
                 al.add(e); RESULT = al;
-                Absyn.display("ArgList"+RESULT.get_pos()+" := ArgList"+temp+" , Expr"+e.get_pos());
+                Absyn.show_prod_rule("ArgList"+RESULT.get_pos()+" := ArgList"+temp+" , Expr"+e.get_pos());
             :}
         ;
