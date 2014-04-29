@@ -5,30 +5,30 @@ int blank_function (){}
 
 float OpeRaTors(int a)
 {
-	int b;
-	int c;
+    int b;
+    int c;
 
-	b = -a;
+    b = -a;
 
-	c = a + b;
-	c = a * b;
-	c = a / b;
-	c = a - b;
+    c = a + b;
+    c = a * b;
+    c = a / b;
+    c = a - b;
 
-	c = a*(b-a)/c;
+    c = a*(b-a)/c;
 
-	a = b > c;
-	b = c < d;
-	c = a <= d;
-	f = d >= a;
-	g = a == a;
-	precedence = a != a * - d > a;
+    a = b > c;
+    b = c < d;
+    c = a <= d;
+    f = d >= a;
+    g = a == a;
+    precedence = a != a * - d > a;
 
-	return ;
+    return ;
 }
 
 int 
-Lists_functionCalls	 
+Lists_functionCalls
 (float a, int b, float c) {
 
   float y1j2, kim0, ascl98;
@@ -43,38 +43,38 @@ Lists_functionCalls
 
 int Stmts()
 {
-	while ( (-nested_Stmt)) {
-	
-		ret = 0;	
-		for (a = 0; a < LENGTH; a = a + 1) 
-			ret = (ret * 3);
+    while ( (-nested_Stmt)) {
 
-		if (ret == 9)
-			return ret;
-	
-	}
-	;
+        ret = 0;
+        for (a = 0; a < LENGTH; a = a + 1) 
+            ret = (ret * 3);
 
-	do {whileloop();} while (coding);
+        if (ret == 9)
+            return ret;
 
-	if (this_compiler == good)
-		grade();
-	else {int really; phone = number; 
+    }
+    ;
+
+    do {whileloop();} while (coding);
+
+    if (this_compiler == good)
+        grade();
+    else {int really; phone = number; 
 callme();}
 
 
-	switch
-	(a)
-	{
-		case 1000: a = b/c;
-		case 1: breakTest = 1; ok =  1; break;
-		case 2:
-	}
+    switch
+    (a)
+    {
+        case 1000: a = b/c;
+        case 1: breakTest = 1; ok =  1; break;
+        case 2:
+    }
 
-	switch
-	(defaultTest) { case 1: ; default: a = 1; break; }
+    switch
+    (defaultTest) { case 1: ; default: a = 1; break; }
 
-	switch (defaultTest2) { default: if (a) return; }
+    switch (defaultTest2) { default: if (a) return; }
 
 }
 
