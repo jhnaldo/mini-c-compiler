@@ -23,7 +23,7 @@ all:
 	$(JAVA) JLex.Main mini-c.lex
 	mv mini-c.lex.java Yylex.java
 	$(JAVAC) Program.java
-	$(JAVAC) sym.java parser.java Yylex.java
+	$(JAVAC) -classpath $(CLASSPATH) sym.java parser.java Yylex.java
 
 run:
 	$(JAVA) -classpath $(CLASSPATH) parser
