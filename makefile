@@ -33,6 +33,7 @@ test:
 
 clean:
 	-rm *.class
+	-rm *.txt
 	-rm Yylex.java
 	-rm parser.java
 	-rm sym.java

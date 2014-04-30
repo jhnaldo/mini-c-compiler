@@ -16,9 +16,12 @@ class Pos {
         return String.valueOf(linenum)+":"+String.valueOf(colnum);
     }
 }
+
 class Absyn {
     public Pos start = null;
     public Pos end = null;
+
+    // Get current position
     public String get_pos(){
         String sstr, estr;
 
@@ -35,17 +38,27 @@ class Absyn {
         }
         return "["+sstr+"-"+estr+"]";
     }
-    static public boolean prod_rule = false;
-    static public boolean ast_c_ver = true;
-    static public boolean sym_table = false;
-    static public int tab = 4;
-    static public int level = 0;
+
+    // Output option
+    static public boolean prod_rule = true;     // Production Rule  : "prod.txt"
+    static public boolean ast_c_ver = true;     // C-like AST       : "tree.txt"
+    static public boolean sym_table = true;     // Symbol Table     : "table.txt"
+
+    // File Output
     static public PrintWriter writer = null;
+
+    // Display functions
     static public void show_prod_rule(String msg){
-        if (prod_rule)
-            System.out.println(msg);
+        if (prod_rule) {
+            writer.println(msg);
+        }
     }
     public void show_ast_c_ver(){ }
+    public void show_sym_table(){ }
+
+    // Indentation
+    static public int tab = 4;
+    static public int level = 0;
     protected void print(String msg){
         String space="";
         for(int i=0;i<tab*level;i++) space+=" ";
@@ -56,8 +69,71 @@ class Absyn {
         for(int i=0;i<tab*level;i++) space+=" ";
         writer.println(space+msg);
     }
+
+    // Symbol table
+    static public ArrayList<String> cur_func_name = new ArrayList<String>();
+    static public Integer sym_count = 0;
+    static public Integer comp_count = 0;
+    static public void show_func_name(){
+        if(cur_func_name.size()==0){
+            writer.println("Function Name : GLOBAL");
+        }else{
+            writer.println();
+            writer.print("Function Name : "+cur_func_name.get(0));
+            for(String name : cur_func_name.subList(1,cur_func_name.size())){
+                writer.print(" - "+name);
+            }
+            writer.println();
+        }
+        writer.println("     count      type                          name     array      role");
+    }
+    static public void show_symbol(Type t, String n, SymbolRole s){
+        String tn = null;
+        switch(t.typ){
+            case INT:
+                tn="int";
+                break;
+            case FLOAT:
+                tn="float";
+                break;
+        }
+        String sn = null;
+        switch(s){
+            case VAR:
+                sn="variable";
+                break;
+            case PARAM:
+                sn="parameter";
+                break;
+        }
+        writer.printf("%10d%10s%30s%10s%10s\n",sym_count,tn,n,"",sn);
+    }
+    static public void show_symbol(Type t, String n, Integer k, SymbolRole s){
+        String tn = null;
+        switch(t.typ){
+            case INT:
+                tn="int";
+                break;
+            case FLOAT:
+                tn="float";
+                break;
+        }
+        String sn = null;
+        switch(s){
+            case VAR:
+                sn="variable";
+                break;
+            case PARAM:
+                sn="parameter";
+                break;
+        }
+        writer.printf("%10d%10s%30s%10d%10s\n",sym_count,tn,n,k,sn);
+    }
 }
-class Ident extends Absyn { }
+class Ident extends Absyn {
+    String name;
+    public boolean is_array(){ return false; }
+}
 class Stmt extends Absyn { }
 
 class Program extends Absyn {
@@ -74,6 +150,12 @@ class Program extends Absyn {
     public void show_ast_c_ver(){
         if(decls!=null) decls.show_ast_c_ver();
         if(funcs!=null) funcs.show_ast_c_ver();
+    }
+
+    public void show_sym_table(){
+        show_func_name();
+        if(decls!=null) decls.show_sym_table();
+        if(funcs!=null) funcs.show_sym_table();
     }
 }
 
@@ -95,6 +177,12 @@ class DeclList extends Absyn {
     public void show_ast_c_ver(){
         for(Decl d : arr){
             d.show_ast_c_ver();
+        }
+    }
+
+    public void show_sym_table(){
+        for(Decl d : arr){
+            d.show_sym_table();
         }
     }
 }
@@ -119,6 +207,12 @@ class FuncList extends Absyn {
             f.show_ast_c_ver();
         }
     }
+
+    public void show_sym_table(){
+        for(Func f : arr){
+            f.show_sym_table();
+        }
+    }
 }
 
 class Decl extends Absyn {
@@ -138,6 +232,19 @@ class Decl extends Absyn {
         writer.print(" ");
         idents.show_ast_c_ver();
         writer.println(";");
+    }
+
+    public void show_sym_table(){
+        for(Ident id : idents.arr){
+            sym_count++;
+            if(id.is_array()){
+                ArrayIdent aid = (ArrayIdent)id;
+                show_symbol(typ, aid.name, aid.size, SymbolRole.VAR);
+            }else{
+                SingleIdent sid = (SingleIdent)id;
+                show_symbol(typ, sid.name, SymbolRole.VAR);
+            }
+        }
     }
 }
 
@@ -166,7 +273,6 @@ class IdentList extends Absyn {
 }
 
 class SingleIdent extends Ident {
-    String name;
     Number val;
 
     public SingleIdent(String n, Pos s, Pos e) {
@@ -176,13 +282,14 @@ class SingleIdent extends Ident {
         end = e;
     }
 
+    public boolean is_array(){ return false; }
+
     public void show_ast_c_ver(){
         writer.print(name);
     }
 }
 
 class ArrayIdent extends Ident {
-    String name;
     Integer size;
 
     public ArrayIdent(String n, Integer si, Pos s, Pos e) {
@@ -191,6 +298,8 @@ class ArrayIdent extends Ident {
         start = s;
         end = e;
     }
+
+    public boolean is_array(){ return true; }
 
     public void show_ast_c_ver(){
         writer.print(name+"["+size+"]");
@@ -221,6 +330,16 @@ class Func extends Absyn {
         writer.println(")");
         comp_stmt.show_ast_c_ver();
     }
+
+    public void show_sym_table(){
+        sym_count=0;
+        comp_count=0;
+        cur_func_name.add(name);
+        show_func_name();
+        if(params!=null) params.show_sym_table();
+        comp_stmt.show_sym_table();
+        cur_func_name.remove(cur_func_name.size()-1);
+    }
 }
 
 class ParamList extends Absyn {
@@ -245,6 +364,21 @@ class ParamList extends Absyn {
             p.show_ast_c_ver();
         }
     }
+
+    public void show_sym_table(){
+        for(Param p : arr){
+            sym_count++;
+            Type typ = p.typ;
+            Ident id = p.ident;
+            if(id.is_array()){
+                ArrayIdent aid = (ArrayIdent)id;
+                show_symbol(typ, aid.name, aid.size, SymbolRole.PARAM);
+            }else{
+                SingleIdent sid = (SingleIdent)id;
+                show_symbol(typ, sid.name, SymbolRole.PARAM);
+            }
+        }
+    }
 }
 
 class Param extends Absyn {
@@ -265,6 +399,10 @@ class Param extends Absyn {
 
 enum TypeName {
     INT, FLOAT;
+}
+
+enum SymbolRole{
+    VAR, PARAM;
 }
 
 class Type extends Absyn {
@@ -309,6 +447,21 @@ class StmtList extends Absyn {
             s.show_ast_c_ver();
         }
     }
+
+    public void show_sym_table(){
+        for(Stmt s : arr){
+            if(s instanceof CompStmt){
+                Integer temp=comp_count+1;
+                comp_count=0;
+                cur_func_name.add("compound("+temp+")");
+                show_func_name();
+                s.show_sym_table();
+                comp_count=temp;
+                cur_func_name.remove(cur_func_name.size()-1);
+            }
+            s.show_sym_table();
+        }
+    }
 }
 
 class CompStmt extends Stmt{
@@ -329,6 +482,11 @@ class CompStmt extends Stmt{
         stmts.show_ast_c_ver();
         level--;
         println("}");
+    }
+
+    public void show_sym_table(){
+        if(decls!=null)decls.show_sym_table();
+        stmts.show_sym_table();
     }
 }
 
@@ -464,6 +622,20 @@ class WhileStmt extends Stmt {
             if(!CompStmt.class.isInstance(stmt)) level--;
         }
     }
+
+    public void show_sym_table(){
+        Integer temp=comp_count+1;
+        comp_count=0;
+        if(is_do){
+            cur_func_name.add("do_while("+temp+")");
+        }else{
+            cur_func_name.add("while("+temp+")");
+        }
+        show_func_name();
+        stmt.show_sym_table();
+        comp_count=temp;
+        cur_func_name.remove(cur_func_name.size()-1);
+    }
 }
 
 class ForStmt extends Stmt {
@@ -493,6 +665,16 @@ class ForStmt extends Stmt {
         stmt.show_ast_c_ver();
         if(!CompStmt.class.isInstance(stmt)) level--;
     }
+
+    public void show_sym_table(){
+        Integer temp=comp_count+1;
+        comp_count=0;
+        cur_func_name.add("for("+temp+")");
+        show_func_name();
+        stmt.show_sym_table();
+        comp_count=temp;
+        cur_func_name.remove(cur_func_name.size()-1);
+    }
 }
 
 class IfStmt extends Stmt {
@@ -520,6 +702,26 @@ class IfStmt extends Stmt {
             if(!CompStmt.class.isInstance(else_stmt)) level++;
             else_stmt.show_ast_c_ver();
             if(!CompStmt.class.isInstance(else_stmt)) level--;
+        }
+    }
+
+    public void show_sym_table(){
+        Integer temp=comp_count+1;
+        comp_count=0;
+        cur_func_name.add("if("+temp+")");
+        show_func_name();
+        then_stmt.show_sym_table();
+        comp_count=temp;
+        cur_func_name.remove(cur_func_name.size()-1);
+
+        if(else_stmt!=null){
+            temp=comp_count+1;
+            comp_count=0;
+            cur_func_name.add("else("+temp+")");
+            show_func_name();
+            else_stmt.show_sym_table();
+            comp_count=temp;
+            cur_func_name.remove(cur_func_name.size()-1);
         }
     }
 }
@@ -558,6 +760,25 @@ class SwitchStmt extends Stmt {
         level--;
         println("}");
     }
+
+    public void show_sym_table(){
+        Integer temp=comp_count+1;
+        comp_count=0;
+        cur_func_name.add("switch("+temp+")");
+        show_func_name();
+        cases.show_sym_table();
+        if(default_stmt!=null){
+            temp=comp_count+1;
+            comp_count=0;
+            cur_func_name.add("default("+temp+")");
+            show_func_name();
+            default_stmt.show_sym_table();
+            comp_count=temp;
+            cur_func_name.remove(cur_func_name.size()-1);
+        }
+        comp_count=temp;
+        cur_func_name.remove(cur_func_name.size()-1);
+    }
 }
 
 class CaseList extends Absyn {
@@ -581,25 +802,41 @@ class CaseList extends Absyn {
             c.show_ast_c_ver();
         }
     }
+
+    public void show_sym_table(){
+        for(CaseStmt c : arr){
+            c.show_sym_table();
+        }
+    }
 }
 
 class CaseStmt extends Stmt {
     Integer num;
-    StmtList stmt_list;
+    StmtList stmts;
     Boolean has_break;
 
     public CaseStmt(Integer k, StmtList sl, Boolean hb){
         num = k;
-        stmt_list = sl;
+        stmts = sl;
         has_break = hb;
     }
 
     public void show_ast_c_ver(){
         println("case "+num+":");
         level++;
-        stmt_list.show_ast_c_ver();
+        stmts.show_ast_c_ver();
         if(has_break) println("break;");
         level--;
+    }
+
+    public void show_sym_table(){
+        Integer temp=comp_count+1;
+        comp_count=0;
+        cur_func_name.add("case("+temp+")");
+        show_func_name();
+        stmts.show_sym_table();
+        comp_count=temp;
+        cur_func_name.remove(cur_func_name.size()-1);
     }
 }
 

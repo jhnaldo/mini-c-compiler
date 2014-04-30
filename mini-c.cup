@@ -11,6 +11,7 @@ action code {:
 
 parser code {:
     public static void main (String args[]) throws Exception{
+        if(Absyn.prod_rule) Absyn.writer = new PrintWriter("prod.txt", "UTF-8");
         new parser(new Yylex(System.in)).parse();
     }
 
@@ -64,27 +65,23 @@ precedence left     RBRACE, LBRACE;
 base ::= 
             program:p
             {:
+                if(Absyn.prod_rule){
+                    Absyn.writer.close();
+                    Absyn.writer = null;
+                }
+
                 if (Absyn.ast_c_ver){
-                    try{
-                        Absyn.writer = new PrintWriter("tree.txt", "UTF-8");
-                        p.show_ast_c_ver();
-                        Absyn.writer.close();
-                        Absyn.writer = null;
-                    }catch(Exception ex){
-                        System.err.println("Please make <tree.txt>");
-                        System.exit(0);
-                    }
+                    Absyn.writer = new PrintWriter("tree.txt", "UTF-8");
+                    p.show_ast_c_ver();
+                    Absyn.writer.close();
+                    Absyn.writer = null;
                 }
 
                 if (Absyn.sym_table){
-                    try{
-                        Absyn.writer = new PrintWriter("table.txt", "UTF-8");
-                        Absyn.writer.close();
-                        Absyn.writer = null;
-                    }catch(Exception ex){
-                        System.err.println("Please make <table.txt>");
-                        System.exit(0);
-                    }
+                    Absyn.writer = new PrintWriter("table.txt", "UTF-8");
+                    p.show_sym_table();
+                    Absyn.writer.close();
+                    Absyn.writer = null;
                 }
             :}
         ;
