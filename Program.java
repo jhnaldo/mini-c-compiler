@@ -2,6 +2,7 @@
 // KAIST CS420 Project
 
 import java.util.*;
+import java.io.PrintWriter;
 
 class Pos {
     public int linenum=0;
@@ -39,6 +40,7 @@ class Absyn {
     static public boolean sym_table = false;
     static public int tab = 4;
     static public int level = 0;
+    static public PrintWriter writer = null;
     static public void show_prod_rule(String msg){
         if (prod_rule)
             System.out.println(msg);
@@ -47,12 +49,12 @@ class Absyn {
     protected void print(String msg){
         String space="";
         for(int i=0;i<tab*level;i++) space+=" ";
-        System.out.print(space+msg);
+        writer.print(space+msg);
     }
     protected void println(String msg){
         String space="";
         for(int i=0;i<tab*level;i++) space+=" ";
-        System.out.println(space+msg);
+        writer.println(space+msg);
     }
 }
 class Ident extends Absyn { }
@@ -133,9 +135,9 @@ class Decl extends Absyn {
     public void show_ast_c_ver(){
         print("");
         typ.show_ast_c_ver();
-        System.out.print(" ");
+        writer.print(" ");
         idents.show_ast_c_ver();
-        System.out.println(";");
+        writer.println(";");
     }
 }
 
@@ -157,7 +159,7 @@ class IdentList extends Absyn {
     public void show_ast_c_ver(){
         arr.get(0).show_ast_c_ver();
         for(Ident i : arr.subList(1,arr.size())){
-            System.out.print(", ");
+            writer.print(", ");
             i.show_ast_c_ver();
         }
     }
@@ -175,7 +177,7 @@ class SingleIdent extends Ident {
     }
 
     public void show_ast_c_ver(){
-        System.out.print(name);
+        writer.print(name);
     }
 }
 
@@ -191,7 +193,7 @@ class ArrayIdent extends Ident {
     }
 
     public void show_ast_c_ver(){
-        System.out.print(name+"["+size+"]");
+        writer.print(name+"["+size+"]");
     }
 }
 
@@ -212,11 +214,11 @@ class Func extends Absyn {
 
     public void show_ast_c_ver(){
         typ.show_ast_c_ver();
-        System.out.print(" "+name+" (");
+        writer.print(" "+name+" (");
         if(params!=null){
             params.show_ast_c_ver();
         }
-        System.out.println(")");
+        writer.println(")");
         comp_stmt.show_ast_c_ver();
     }
 }
@@ -239,7 +241,7 @@ class ParamList extends Absyn {
     public void show_ast_c_ver(){
         arr.get(0).show_ast_c_ver();
         for(Param p : arr.subList(1,arr.size())){
-            System.out.print(", ");
+            writer.print(", ");
             p.show_ast_c_ver();
         }
     }
@@ -256,7 +258,7 @@ class Param extends Absyn {
 
     public void show_ast_c_ver(){
         typ.show_ast_c_ver();
-        System.out.print(" ");
+        writer.print(" ");
         ident.show_ast_c_ver();
     }
 }
@@ -277,10 +279,10 @@ class Type extends Absyn {
     public void show_ast_c_ver(){
         switch(typ){
             case INT:
-                System.out.print("int");
+                writer.print("int");
                 break;
             case FLOAT:
-                System.out.print("float");
+                writer.print("float");
                 break;
         }
     }
@@ -353,7 +355,7 @@ class AssignStmt extends Stmt {
     public void show_ast_c_ver(){
         print("");
         assign.show_ast_c_ver();
-        System.out.println(";");
+        writer.println(";");
     }
 }
 
@@ -370,13 +372,13 @@ class Assign extends Absyn {
     }
 
     public void show_ast_c_ver(){
-        System.out.print(name);
+        writer.print(name);
         if(index!=null){
-            System.out.print("[");
+            writer.print("[");
             index.show_ast_c_ver();
-            System.out.print("]");
+            writer.print("]");
         }
-        System.out.print(" = ");
+        writer.print(" = ");
         expr.show_ast_c_ver();
     }
 }
@@ -393,7 +395,7 @@ class CallStmt extends Stmt {
     public void show_ast_c_ver(){
         print("");
         call.show_ast_c_ver();
-        System.out.println(";");
+        writer.println(";");
     }
 }
 
@@ -409,9 +411,9 @@ class Call extends Absyn {
     }
 
     public void show_ast_c_ver(){
-        System.out.print(name+"(");
+        writer.print(name+"(");
         if(args!=null)args.show_ast_c_ver();
-        System.out.print(")");
+        writer.print(")");
     }
 }
 
@@ -427,7 +429,7 @@ class RetStmt extends Stmt {
     public void show_ast_c_ver(){
         print("return ");
         if(expr!=null)expr.show_ast_c_ver();
-        System.out.println(";");
+        writer.println(";");
     }
 }
 
@@ -452,11 +454,11 @@ class WhileStmt extends Stmt {
             if(!CompStmt.class.isInstance(stmt)) level--;
             print("while(");
             expr.show_ast_c_ver();
-            System.out.println(");");
+            writer.println(");");
         }else{
             print("while(");
             expr.show_ast_c_ver();
-            System.out.println(");");
+            writer.println(");");
             if(!CompStmt.class.isInstance(stmt)) level++;
             stmt.show_ast_c_ver();
             if(!CompStmt.class.isInstance(stmt)) level--;
@@ -482,11 +484,11 @@ class ForStmt extends Stmt {
     public void show_ast_c_ver(){
         print("for(");
         initial.show_ast_c_ver();
-        System.out.print("; ");
+        writer.print("; ");
         condition.show_ast_c_ver();
-        System.out.print("; ");
+        writer.print("; ");
         incl.show_ast_c_ver();
-        System.out.println(")");
+        writer.println(")");
         if(!CompStmt.class.isInstance(stmt)) level++;
         stmt.show_ast_c_ver();
         if(!CompStmt.class.isInstance(stmt)) level--;
@@ -508,7 +510,7 @@ class IfStmt extends Stmt {
     public void show_ast_c_ver(){
         print("if(");
         condition.show_ast_c_ver();
-        System.out.println(")");
+        writer.println(")");
         if(!CompStmt.class.isInstance(then_stmt)) level++;
         then_stmt.show_ast_c_ver();
         if(!CompStmt.class.isInstance(then_stmt)) level--;
@@ -540,7 +542,7 @@ class SwitchStmt extends Stmt {
     public void show_ast_c_ver(){
         print("switch(");
         ident.show_ast_c_ver();
-        System.out.println(")");
+        writer.println(")");
         println("{");
         level++;
         cases.show_ast_c_ver();
@@ -615,7 +617,7 @@ class UnaryExpr extends Expr{
     }
 
     public void show_ast_c_ver(){
-        System.out.print(symbol);
+        writer.print(symbol);
         expr.show_ast_c_ver();
     }
 }
@@ -640,7 +642,7 @@ class BinaryExpr extends Expr{
 
     public void show_ast_c_ver(){
         left_expr.show_ast_c_ver();
-        System.out.print(symbol);
+        writer.print(symbol);
         right_expr.show_ast_c_ver();
     }
 }
@@ -729,7 +731,7 @@ class IntExpr extends Expr {
     }
 
     public void show_ast_c_ver(){
-        System.out.print(num);
+        writer.print(num);
     }
 }
 
@@ -743,7 +745,7 @@ class FloatExpr extends Expr {
     }
 
     public void show_ast_c_ver(){
-        System.out.print(num);
+        writer.print(num);
     }
 }
 
@@ -757,7 +759,7 @@ class SingleIdExpr extends Expr {
     }
 
     public void show_ast_c_ver(){
-        System.out.print(name);
+        writer.print(name);
     }
 }
 
@@ -773,9 +775,9 @@ class ArrayIdExpr extends Expr {
     }
 
     public void show_ast_c_ver(){
-        System.out.print(name+"[");
+        writer.print(name+"[");
         expr.show_ast_c_ver();
-        System.out.print("]");
+        writer.print("]");
     }
 }
 
@@ -788,9 +790,9 @@ class ParenExpr extends Expr {
     }
 
     public void show_ast_c_ver(){
-        System.out.print("(");
+        writer.print("(");
         expr.show_ast_c_ver();
-        System.out.print(")");
+        writer.print(")");
     }
 }
 
@@ -812,7 +814,7 @@ class ArgList extends Absyn {
     public void show_ast_c_ver(){
         arr.get(0).show_ast_c_ver();
         for(Expr e : arr.subList(1,arr.size())){
-            System.out.print(", ");
+            writer.print(", ");
             e.show_ast_c_ver();
         }
     }
