@@ -37,11 +37,23 @@ class Absyn {
     static public boolean prod_rule = false;
     static public boolean ast_c_ver = true;
     static public boolean sym_table = false;
+    static public int tab = 4;
+    static public int level = 0;
     static public void show_prod_rule(String msg){
         if (prod_rule)
             System.out.println(msg);
     }
     public void show_ast_c_ver(){ }
+    protected void print(String msg){
+        String space="";
+        for(int i=0;i<tab*level;i++) space+=" ";
+        System.out.print(space+msg);
+    }
+    protected void println(String msg){
+        String space="";
+        for(int i=0;i<tab*level;i++) space+=" ";
+        System.out.println(space+msg);
+    }
 }
 class Ident extends Absyn { }
 class Stmt extends Absyn { }
@@ -119,6 +131,7 @@ class Decl extends Absyn {
     }
 
     public void show_ast_c_ver(){
+        print("");
         typ.show_ast_c_ver();
         System.out.print(" ");
         idents.show_ast_c_ver();
@@ -308,10 +321,12 @@ class CompStmt extends Stmt{
     }
 
     public void show_ast_c_ver(){
-        System.out.println("{");
+        println("{");
+        level++;
         if(decls!=null)decls.show_ast_c_ver();
         stmts.show_ast_c_ver();
-        System.out.println("}");
+        level--;
+        println("}");
     }
 }
 
@@ -322,7 +337,7 @@ class NullStmt extends Stmt{
     }
 
     public void show_ast_c_ver(){
-        System.out.println(";");
+        println(";");
     }
 }
 
@@ -336,6 +351,7 @@ class AssignStmt extends Stmt {
     }
 
     public void show_ast_c_ver(){
+        print("");
         assign.show_ast_c_ver();
         System.out.println(";");
     }
@@ -375,6 +391,7 @@ class CallStmt extends Stmt {
     }
 
     public void show_ast_c_ver(){
+        print("");
         call.show_ast_c_ver();
         System.out.println(";");
     }
@@ -408,7 +425,7 @@ class RetStmt extends Stmt {
     }
 
     public void show_ast_c_ver(){
-        System.out.print("return ");
+        print("return ");
         if(expr!=null)expr.show_ast_c_ver();
         System.out.println(";");
     }
@@ -429,16 +446,20 @@ class WhileStmt extends Stmt {
 
     public void show_ast_c_ver(){
         if(is_do){
-            System.out.println("do");
+            println("do");
+            if(!CompStmt.class.isInstance(stmt)) level++;
             stmt.show_ast_c_ver();
-            System.out.print("while(");
+            if(!CompStmt.class.isInstance(stmt)) level--;
+            print("while(");
             expr.show_ast_c_ver();
             System.out.println(");");
         }else{
-            System.out.print("while(");
+            print("while(");
             expr.show_ast_c_ver();
             System.out.println(");");
+            if(!CompStmt.class.isInstance(stmt)) level++;
             stmt.show_ast_c_ver();
+            if(!CompStmt.class.isInstance(stmt)) level--;
         }
     }
 }
@@ -459,14 +480,16 @@ class ForStmt extends Stmt {
     }
 
     public void show_ast_c_ver(){
-        System.out.print("for(");
+        print("for(");
         initial.show_ast_c_ver();
         System.out.print("; ");
         condition.show_ast_c_ver();
         System.out.print("; ");
         incl.show_ast_c_ver();
         System.out.println(")");
+        if(!CompStmt.class.isInstance(stmt)) level++;
         stmt.show_ast_c_ver();
+        if(!CompStmt.class.isInstance(stmt)) level--;
     }
 }
 
@@ -483,13 +506,18 @@ class IfStmt extends Stmt {
     }
 
     public void show_ast_c_ver(){
-        System.out.print("if(");
+        print("if(");
         condition.show_ast_c_ver();
         System.out.println(")");
+        if(!CompStmt.class.isInstance(then_stmt)) level++;
         then_stmt.show_ast_c_ver();
+        if(!CompStmt.class.isInstance(then_stmt)) level--;
+
         if(else_stmt!=null){
-            System.out.println("else");
+            println("else");
+            if(!CompStmt.class.isInstance(else_stmt)) level++;
             else_stmt.show_ast_c_ver();
+            if(!CompStmt.class.isInstance(else_stmt)) level--;
         }
     }
 }
@@ -510,19 +538,23 @@ class SwitchStmt extends Stmt {
     }
 
     public void show_ast_c_ver(){
-        System.out.print("switch(");
+        print("switch(");
         ident.show_ast_c_ver();
         System.out.println(")");
-        System.out.println("{");
+        println("{");
+        level++;
         cases.show_ast_c_ver();
         if(default_stmt!=null){
-            System.out.println("default:");
+            println("default:");
+            level++;
             default_stmt.show_ast_c_ver();
             if(default_has_break){
-                System.out.println("break;");
+                println("break;");
             }
+            level--;
         }
-        System.out.println("}");
+        level--;
+        println("}");
     }
 }
 
@@ -561,9 +593,11 @@ class CaseStmt extends Stmt {
     }
 
     public void show_ast_c_ver(){
-        System.out.println("case "+num+":");
+        println("case "+num+":");
+        level++;
         stmt_list.show_ast_c_ver();
-        if(has_break) System.out.println("break;");
+        if(has_break) println("break;");
+        level--;
     }
 }
 
