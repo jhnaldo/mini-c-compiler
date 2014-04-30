@@ -40,7 +40,7 @@ clean:
 	-rm sym.java
 
 vclean:
-	-rm */*.class
+	-find . -name "*.class" -exec rm -rf {} \;
 	-rm *.txt
 	-rm Yylex.java
 	-rm parser.java
