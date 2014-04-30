@@ -65,3 +65,12 @@ ArgList         := Expr \(, Expr\)\*
 
 *** I modified the condition and loop production rule for removing dangling else problem with loop
 *** I modified the switch case rule for representing the default case
+
+
+
+
+##########################     RESULT     ###########################
+
+    Production Rule :   prod.txt
+    C-style AST     :   tree.txt
+    Symbol Table    :   table.txt

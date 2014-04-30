@@ -5,6 +5,8 @@ import java_cup.runtime.*;
 import java.io.*;
 import java.util.*;
 import java_cup.runtime.Scanner;
+import Nodes.*;
+import Nodes.DeclList;
 
 action code {:
 :}
