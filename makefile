@@ -45,4 +45,3 @@ vclean:
 	-rm Yylex.java
 	-rm parser.java
 	-rm sym.java
-	-rm JLex/*.class
