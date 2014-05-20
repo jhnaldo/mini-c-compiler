@@ -9,6 +9,10 @@ import java.io.PrintWriter;
 public class ArgList extends Absyn {
     ArrayList<Expr> arr;
 
+    public ArgList(){
+        arr = new ArrayList<Expr>();
+    }
+
     public ArgList(Expr ex, Pos s, Pos e) {
         arr = new ArrayList<Expr>();
         arr.add(ex);
@@ -27,5 +31,15 @@ public class ArgList extends Absyn {
             writer.print(", ");
             e.show_ast_c_ver();
         }
+    }
+
+    public ArgList semantic_analysis(){
+        ArgList al = new ArgList();
+        for(Expr e : arr){
+            al.add(e.semantic_analysis());
+        }
+        al.start = start;
+        al.end = end;
+        return al;
     }
 }

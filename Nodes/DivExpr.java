@@ -11,4 +11,11 @@ public class DivExpr extends BinaryExpr {
         super(le,re,s,e);
         symbol = "/";
     }
+
+    public DivExpr semantic_analysis(){
+        DivExpr e = new DivExpr(null, null, start, end);
+        e.left_expr = left_expr.semantic_analysis();
+        e.right_expr = right_expr.semantic_analysis();
+        return e;
+    }
 }

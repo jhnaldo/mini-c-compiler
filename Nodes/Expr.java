@@ -7,4 +7,5 @@ import java.util.*;
 import java.io.PrintWriter;
 
 public class Expr extends Absyn {
+    public Expr semantic_analysis(){ return this; }
 }

@@ -20,4 +20,10 @@ public class CallStmt extends Stmt {
         call.show_ast_c_ver();
         writer.println(";");
     }
+
+    public CallStmt semantic_analysis(){
+        CallStmt cs = new CallStmt(null, start, end);
+        cs.call = call.semantic_analysis();
+        return cs;
+    }
 }

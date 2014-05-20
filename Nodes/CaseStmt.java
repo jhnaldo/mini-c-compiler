@@ -34,4 +34,10 @@ public class CaseStmt extends Stmt {
         comp_count=temp;
         cur_func_name.remove(cur_func_name.size()-1);
     }
+
+    public CaseStmt semantic_analysis(){
+        CaseStmt cs = new CaseStmt(num, null, has_break);
+        cs.stmts = stmts.semantic_analysis();
+        return cs;
+    }
 }

@@ -22,6 +22,13 @@ public class CaseList extends Absyn {
         end = e;
     }
 
+    public void add(CaseStmt c){
+        arr.add(c);
+        if (arr.size() == 1)
+            start = c.start;
+        end = c.end;
+    }
+
     public void show_ast_c_ver(){
         for(CaseStmt c : arr){
             c.show_ast_c_ver();
@@ -32,5 +39,13 @@ public class CaseList extends Absyn {
         for(CaseStmt c : arr){
             c.show_sym_table();
         }
+    }
+
+    public CaseList semantic_analysis(){
+        CaseList cl = new CaseList(start, end);
+        for(CaseStmt c : arr){
+            cl.add(c.semantic_analysis());
+        }
+        return cl;
     }
 }

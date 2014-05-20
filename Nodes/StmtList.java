@@ -38,8 +38,17 @@ public class StmtList extends Absyn {
                 s.show_sym_table();
                 comp_count=temp;
                 cur_func_name.remove(cur_func_name.size()-1);
+            }else{
+                s.show_sym_table();
             }
-            s.show_sym_table();
         }
+    }
+
+    public StmtList semantic_analysis(){
+        StmtList sl = new StmtList(start, end);
+        for(Stmt s : arr){
+            sl.arr.add(s.semantic_analysis());
+        }
+        return sl;
     }
 }

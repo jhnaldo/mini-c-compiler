@@ -9,4 +9,8 @@ import java.io.PrintWriter;
 public class Ident extends Absyn {
     String name;
     public boolean is_array(){ return false; }
+
+    public Ident semantic_analysis(){
+        return this;
+    }
 }

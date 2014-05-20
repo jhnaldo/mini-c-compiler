@@ -22,4 +22,10 @@ public class ArrayIdExpr extends Expr {
         expr.show_ast_c_ver();
         writer.print("]");
     }
+
+    public ArrayIdExpr semantic_analysis(){
+        ArrayIdExpr aie = new ArrayIdExpr(name, null, start, end);
+        aie.expr = expr.semantic_analysis();
+        return aie;
+    }
 }

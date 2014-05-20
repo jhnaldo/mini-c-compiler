@@ -18,4 +18,10 @@ public class CallExpr extends Expr {
     public void show_ast_c_ver(){
         call.show_ast_c_ver();
     }
+
+    public CallExpr semantic_analysis(){
+        CallExpr ce = new CallExpr(null, start, end);
+        ce.call = call.semantic_analysis();
+        return ce;
+    }
 }

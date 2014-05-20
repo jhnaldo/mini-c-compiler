@@ -59,4 +59,12 @@ public class SwitchStmt extends Stmt {
         comp_count=temp;
         cur_func_name.remove(cur_func_name.size()-1);
     }
+
+    public SwitchStmt semantic_analysis(){
+        SwitchStmt ss = new SwitchStmt(null, null, null, default_has_break, start, end);
+        ss.ident = ident.semantic_analysis();
+        ss.cases = cases.semantic_analysis();
+        ss.default_stmt = default_stmt.semantic_analysis();
+        return ss;
+    }
 }

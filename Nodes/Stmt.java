@@ -6,4 +6,6 @@ package Nodes;
 import java.util.*;
 import java.io.PrintWriter;
 
-public class Stmt extends Absyn { }
+public class Stmt extends Absyn {
+    public Stmt semantic_analysis(){ return this; }
+}

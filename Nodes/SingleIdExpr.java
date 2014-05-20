@@ -18,4 +18,8 @@ public class SingleIdExpr extends Expr {
     public void show_ast_c_ver(){
         writer.print(name);
     }
+
+    public SingleIdExpr semantic_analysis(){
+        return this;
+    }
 }

@@ -21,4 +21,8 @@ public class ArrayIdent extends Ident {
     public void show_ast_c_ver(){
         writer.print(name+"["+size+"]");
     }
+
+    public ArrayIdent semantic_analysis(){
+        return this;
+    }
 }

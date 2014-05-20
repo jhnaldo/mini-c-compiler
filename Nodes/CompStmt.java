@@ -30,4 +30,17 @@ public class CompStmt extends Stmt{
         if(decls!=null)decls.show_sym_table();
         stmts.show_sym_table();
     }
+
+    public CompStmt semantic_analysis(){
+        sym_table_arr.add(new SymbolTable("compound"));
+        cur_sym_table = sym_table_arr.get(sym_table_arr.size()-1);
+        SymbolTable temp_sym_table = cur_sym_table;
+
+        CompStmt cp = new CompStmt(null, null, start, end);
+        if(decls!=null) cp.decls = decls.semantic_analysis();
+        cp.stmts = stmts.semantic_analysis();
+
+        sym_table_arr.remove(temp_sym_table);
+        return cp;
+    }
 }

@@ -53,4 +53,12 @@ public class IfStmt extends Stmt {
             cur_func_name.remove(cur_func_name.size()-1);
         }
     }
+
+    public IfStmt semantic_analysis(){
+        IfStmt f = new IfStmt(null, null, null, start, end);
+        f.condition = condition.semantic_analysis();
+        f.then_stmt = then_stmt.semantic_analysis();
+        if(else_stmt!=null) f.else_stmt = else_stmt.semantic_analysis();
+        return f;
+    }
 }

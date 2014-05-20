@@ -20,4 +20,10 @@ public class RetStmt extends Stmt {
         if(expr!=null)expr.show_ast_c_ver();
         writer.println(";");
     }
+
+    public RetStmt semantic_analysis(){
+        RetStmt rs = new RetStmt(null, start, end);
+        rs.expr = expr.semantic_analysis();
+        return rs;
+    }
 }

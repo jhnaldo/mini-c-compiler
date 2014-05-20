@@ -12,6 +12,13 @@ public class Func extends Absyn {
     ParamList params;
     CompStmt comp_stmt;
 
+    public Func(){
+        typ=null;
+        name="";
+        params=null;
+        comp_stmt=null;
+    }
+
     public Func(Type t, String fn, ParamList pl, CompStmt cs, Pos s, Pos e) {
         typ = t;
         name = fn;
@@ -39,5 +46,23 @@ public class Func extends Absyn {
         if(params!=null) params.show_sym_table();
         comp_stmt.show_sym_table();
         cur_func_name.remove(cur_func_name.size()-1);
+    }
+
+    public Func semantic_analysis(){
+        sym_table_arr.add(new SymbolTable(name));
+        fun_table_arr.add(new SymbolTable(name));
+        cur_sym_table = sym_table_arr.get(sym_table_arr.size()-1);
+        cur_fun_table = fun_table_arr.get(fun_table_arr.size()-1);
+        SymbolTable temp_sym_table = cur_sym_table;
+        SymbolTable temp_fun_table = cur_fun_table;
+
+        Func f = new Func();
+        if(params!=null) f.params = params.semantic_analysis();
+        f.comp_stmt = comp_stmt.semantic_analysis();
+        f.typ=typ;
+        f.name=name;
+
+        sym_table_arr.remove(temp_sym_table);
+        return f;
     }
 }

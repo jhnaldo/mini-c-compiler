@@ -11,4 +11,11 @@ public class NotEqualExpr extends BinaryExpr {
         super(le,re,s,e);
         symbol = "!=";
     }
+
+    public NotEqualExpr semantic_analysis(){
+        NotEqualExpr me = new NotEqualExpr(null, null, start, end);
+        me.left_expr = left_expr.semantic_analysis();
+        me.right_expr = right_expr.semantic_analysis();
+        return me;
+    }
 }

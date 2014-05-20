@@ -9,6 +9,10 @@ import java.io.PrintWriter;
 public class DeclList extends Absyn {
     ArrayList<Decl> arr;
 
+    public DeclList(){
+        arr = new ArrayList<Decl>();
+    }
+
     public DeclList(Decl decl, Pos s, Pos e) {
         arr = new ArrayList<Decl>();
         arr.add(decl);
@@ -31,5 +35,15 @@ public class DeclList extends Absyn {
         for(Decl d : arr){
             d.show_sym_table();
         }
+    }
+
+    public DeclList semantic_analysis(){
+        DeclList dl = new DeclList();
+        for(Decl d : arr){
+            dl.add(d.semantic_analysis());
+        }
+        dl.start = start;
+        dl.end = end;
+        return dl;
     }
 }

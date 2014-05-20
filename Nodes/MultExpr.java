@@ -11,4 +11,11 @@ public class MultExpr extends BinaryExpr {
         super(le,re,s,e);
         symbol = "*";
     }
+
+    public MultExpr semantic_analysis(){
+        MultExpr e = new MultExpr(null, null, start, end);
+        e.left_expr = left_expr.semantic_analysis();
+        e.right_expr = right_expr.semantic_analysis();
+        return e;
+    }
 }

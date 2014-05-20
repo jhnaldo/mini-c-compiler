@@ -72,16 +72,21 @@ base ::=
                     Absyn.writer = null;
                 }
 
-                if (Absyn.ast_c_ver){
-                    Absyn.writer = new PrintWriter("tree.txt", "UTF-8");
-                    p.show_ast_c_ver();
+                if (Absyn.sym_table){
+                    Absyn.writer = new PrintWriter("table.txt", "UTF-8");
+                    p.show_sym_table();
                     Absyn.writer.close();
                     Absyn.writer = null;
                 }
 
-                if (Absyn.sym_table){
-                    Absyn.writer = new PrintWriter("table.txt", "UTF-8");
-                    p.show_sym_table();
+                Absyn.writer = new PrintWriter("table2.txt", "UTF-8");
+                p = p.semantic_analysis();
+                Absyn.writer.close();
+                Absyn.writer = null;
+
+                if (Absyn.ast_c_ver){
+                    Absyn.writer = new PrintWriter("tree.txt", "UTF-8");
+                    p.show_ast_c_ver();
                     Absyn.writer.close();
                     Absyn.writer = null;
                 }

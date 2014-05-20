@@ -28,4 +28,11 @@ public class Assign extends Absyn {
         writer.print(" = ");
         expr.show_ast_c_ver();
     }
+
+    public Assign semantic_analysis(){
+        Assign as = new Assign(name, null, null, start, end);
+        if(index!=null) as.index = index.semantic_analysis();
+        as.expr = expr.semantic_analysis();
+        return as;
+    }
 }

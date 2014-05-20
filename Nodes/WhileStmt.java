@@ -51,4 +51,12 @@ public class WhileStmt extends Stmt {
         comp_count=temp;
         cur_func_name.remove(cur_func_name.size()-1);
     }
+
+    public WhileStmt semantic_analysis(){
+        WhileStmt w = new WhileStmt(null, null, null, start, end);
+        w.expr = expr.semantic_analysis();
+        w.stmt = stmt.semantic_analysis();
+        w.is_do = is_do;
+        return w;
+    }
 }

@@ -9,6 +9,10 @@ import java.io.PrintWriter;
 public class ParamList extends Absyn {
     ArrayList<Param> arr;
 
+    public ParamList(){
+        arr = new ArrayList<Param>();
+    }
+
     public ParamList(Type t, Ident id, Pos s, Pos e) {
         arr = new ArrayList<Param>();
         arr.add(new Param(t, id));
@@ -42,5 +46,24 @@ public class ParamList extends Absyn {
                 show_symbol(typ, sid.name, SymbolRole.PARAM);
             }
         }
+    }
+
+    public ParamList semantic_analysis(){
+        ParamList pl = new ParamList();
+        for(Param p : arr){
+            Type typ = p.typ;
+            Ident id = p.ident;
+            if(id.is_array()){
+                ArrayIdent aid = (ArrayIdent)id;
+                add_symbol(typ, aid.name, aid.size, SymbolRole.PARAM);
+            }else{
+                SingleIdent sid = (SingleIdent)id;
+                add_symbol(typ, sid.name, SymbolRole.PARAM);
+            }
+        }
+        pl.arr = arr;
+        pl.start = start;
+        pl.end = end;
+        return pl;
     }
 }

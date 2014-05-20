@@ -22,4 +22,10 @@ public class Call extends Absyn {
         if(args!=null)args.show_ast_c_ver();
         writer.print(")");
     }
+
+    public Call semantic_analysis(){
+        Call c = new Call(name, null, start, end);
+        c.args = args.semantic_analysis();
+        return c;
+    }
 }

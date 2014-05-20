@@ -20,4 +20,10 @@ public class AssignStmt extends Stmt {
         assign.show_ast_c_ver();
         writer.println(";");
     }
+
+    public AssignStmt semantic_analysis(){
+        AssignStmt as = new AssignStmt(null, start, end);
+        as.assign = assign.semantic_analysis();
+        return as;
+    }
 }

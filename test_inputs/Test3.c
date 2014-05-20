@@ -20,6 +20,7 @@ int many_depth(float X[2]){
     start[0] = 0;
     start[1] = 0;
     for(i=0;i<MAX_ITER;i=i+1){
+        int k;
         next_value[0] = multiple_real(start,start)+X[0];
         next_value[1] = multiple_image(start,start)+X[1];
         if(absolute2(next_value) >= 4.56789){

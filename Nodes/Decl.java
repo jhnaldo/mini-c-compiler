@@ -10,7 +10,12 @@ public class Decl extends Absyn {
     Type typ;
     IdentList idents;
 
-    public Decl(Type t, IdentList idl, Pos s, Pos e) {
+    public Decl(){
+        typ=null;
+        idents=null;
+    }
+
+    public Decl(Type t, IdentList idl, Pos s, Pos e){
         typ = t;
         idents = idl;
         start = s;
@@ -36,5 +41,24 @@ public class Decl extends Absyn {
                 show_symbol(typ, sid.name, SymbolRole.VAR);
             }
         }
+    }
+
+    public Decl semantic_analysis(){
+        for(Ident id : idents.arr){
+            if(id.is_array()){
+                ArrayIdent aid = (ArrayIdent)id;
+                add_symbol(typ, aid.name, aid.size, SymbolRole.VAR);
+            }else{
+                SingleIdent sid = (SingleIdent)id;
+                add_symbol(typ, sid.name, SymbolRole.VAR);
+            }
+        }
+
+        Decl d = new Decl();
+        d.typ = typ;
+        d.idents = idents;
+        d.start = start;
+        d.end = end;
+        return d;
     }
 }

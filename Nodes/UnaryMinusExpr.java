@@ -11,4 +11,10 @@ public class UnaryMinusExpr extends UnaryExpr {
         super(ex,s,e);
         symbol = "-";
     }
+
+    public UnaryMinusExpr semantic_analysis(){
+        UnaryMinusExpr ume = new UnaryMinusExpr(null, start, end);
+        ume.expr = expr.semantic_analysis();
+        return ume;
+    }
 }

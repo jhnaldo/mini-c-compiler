@@ -21,4 +21,8 @@ public class SingleIdent extends Ident {
     public void show_ast_c_ver(){
         writer.print(name);
     }
+
+    public SingleIdent semantic_analysis(){
+        return this;
+    }
 }

@@ -43,4 +43,13 @@ public class ForStmt extends Stmt {
         comp_count=temp;
         cur_func_name.remove(cur_func_name.size()-1);
     }
+
+    public ForStmt semantic_analysis(){
+        ForStmt f = new ForStmt(null,null,null,null,start,end);
+        f.initial = initial.semantic_analysis();
+        f.condition = condition.semantic_analysis();
+        f.incl = incl.semantic_analysis();
+        f.stmt = stmt.semantic_analysis();
+        return f;
+    }
 }

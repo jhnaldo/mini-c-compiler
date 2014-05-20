@@ -11,4 +11,11 @@ public class PlusExpr extends BinaryExpr {
         super(le,re,s,e);
         symbol = "+";
     }
+
+    public PlusExpr semantic_analysis(){
+        PlusExpr me = new PlusExpr(null, null, start, end);
+        me.left_expr = left_expr.semantic_analysis();
+        me.right_expr = right_expr.semantic_analysis();
+        return me;
+    }
 }

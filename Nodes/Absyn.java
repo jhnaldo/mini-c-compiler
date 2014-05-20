@@ -60,6 +60,10 @@ public class Absyn {
     }
 
     // Symbol table
+    static public ArrayList<SymbolTable> sym_table_arr = new ArrayList<SymbolTable>();
+    static public ArrayList<SymbolTable> fun_table_arr = new ArrayList<SymbolTable>();
+    static public SymbolTable cur_sym_table = null;
+    static public SymbolTable cur_fun_table = null;
     static public ArrayList<String> cur_func_name = new ArrayList<String>();
     static public Integer sym_count = 0;
     static public Integer comp_count = 0;
@@ -75,6 +79,22 @@ public class Absyn {
             writer.println();
         }
         writer.println("     count      type                          name     array      role");
+    }
+    static public void add_symbol(Type t, String n, SymbolRole s){
+        switch(s){
+            case PARAM:
+                cur_fun_table.add(n, t, -1, s);
+            case VAR:
+                cur_sym_table.add(n, t, -1, s);
+        }
+    }
+    static public void add_symbol(Type t, String n, Integer k, SymbolRole s){
+        switch(s){
+            case PARAM:
+                cur_fun_table.add(n, t, k, s);
+            case VAR:
+                cur_sym_table.add(n, t, k, s);
+        }
     }
     static public void show_symbol(Type t, String n, SymbolRole s){
         String tn = null;
