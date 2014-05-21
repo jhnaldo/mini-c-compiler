@@ -65,4 +65,8 @@ class STElem {
         }
         writer.printf("%10s%10d%10s\n",tn,size,sn);
     }
+
+    public boolean is_array(){
+        return size>=0;
+    }
 }

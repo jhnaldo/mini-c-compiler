@@ -59,6 +59,25 @@ public class Absyn {
         writer.println(space+msg);
     }
 
+    // semantic check
+    static private ArrayList<SymbolTable> reverse(ArrayList<SymbolTable> arr){
+        ArrayList<SymbolTable> _arr = new ArrayList<SymbolTable>(arr);
+        Collections.reverse(_arr);
+        return _arr;
+    }
+    static public STElem get_sym_table_elem(String name){
+        for(SymbolTable st : reverse(sym_table_arr)){
+            if(st.hash.containsKey(name)) return st.hash.get(name);
+        }
+        return null;
+    }
+    static public SymbolTable get_fun_table(String name){
+        for(SymbolTable st : fun_table_arr){
+            if(st.name.equals(name)) return st;
+        }
+        return null;
+    }
+
     // Symbol table
     static public ArrayList<SymbolTable> sym_table_arr = new ArrayList<SymbolTable>();
     static public ArrayList<SymbolTable> fun_table_arr = new ArrayList<SymbolTable>();

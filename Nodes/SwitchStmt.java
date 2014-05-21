@@ -62,6 +62,12 @@ public class SwitchStmt extends Stmt {
 
     public SwitchStmt semantic_analysis(){
         SwitchStmt ss = new SwitchStmt(null, null, null, default_has_break, start, end);
+        String name = ident.name;
+        STElem ste = get_sym_table_elem(name);
+        if(ste == null){
+            System.err.println("[SemanticError]:"+ident.start.str()+":Variable "+name+" is not defined");
+            System.exit(0);
+        }
         ss.ident = ident.semantic_analysis();
         ss.cases = cases.semantic_analysis();
         ss.default_stmt = default_stmt.semantic_analysis();

@@ -20,6 +20,11 @@ public class SingleIdExpr extends Expr {
     }
 
     public SingleIdExpr semantic_analysis(){
+        STElem ste = get_sym_table_elem(name);
+        if(ste == null){
+            System.err.println("[SemanticError]:"+start.str()+":Variable "+name+" is not defined");
+            System.exit(0);
+        }
         return this;
     }
 }

@@ -31,8 +31,15 @@ public class Assign extends Absyn {
 
     public Assign semantic_analysis(){
         Assign as = new Assign(name, null, null, start, end);
+
+        STElem ste = get_sym_table_elem(name);
+        if(ste == null){
+            System.err.println("[SemanticError]:"+start.str()+":Variable "+name+" is not defined");
+            System.exit(0);
+        }
         if(index!=null) as.index = index.semantic_analysis();
         as.expr = expr.semantic_analysis();
+
         return as;
     }
 }

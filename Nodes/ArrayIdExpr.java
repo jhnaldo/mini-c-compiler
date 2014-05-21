@@ -25,6 +25,11 @@ public class ArrayIdExpr extends Expr {
 
     public ArrayIdExpr semantic_analysis(){
         ArrayIdExpr aie = new ArrayIdExpr(name, null, start, end);
+        STElem ste = get_sym_table_elem(name);
+        if(ste == null){
+            System.err.println("[SemanticError]:"+start.str()+":Variable "+name+" is not defined");
+            System.exit(0);
+        }
         aie.expr = expr.semantic_analysis();
         return aie;
     }

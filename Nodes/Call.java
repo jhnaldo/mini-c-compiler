@@ -25,6 +25,11 @@ public class Call extends Absyn {
 
     public Call semantic_analysis(){
         Call c = new Call(name, null, start, end);
+        SymbolTable st = get_fun_table(name);
+        if(st==null){
+            System.err.println("[SemanticError]:"+start.str()+":function "+name+" is not defined");
+            System.exit(0);
+        }
         c.args = args.semantic_analysis();
         return c;
     }
