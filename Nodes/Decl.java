@@ -45,6 +45,20 @@ public class Decl extends Absyn {
 
     public Decl semantic_analysis(){
         for(Ident id : idents.arr){
+
+            if(is_func){
+                int size = sym_table_arr.size();
+                SymbolTable st = sym_table_arr.get(size-2);
+                if(st.hash.containsKey(id.name)){
+                    System.err.println("[SemanticError]:"+id.start.str()+":Variable "+id.name+" is already defiend");
+                    System.exit(0);
+                }
+            }
+            if(cur_sym_table.hash.containsKey(id.name)){
+                System.err.println("[SemanticError]:"+id.start.str()+":Parameter "+id.name+" is already defiend");
+                System.exit(0);
+            }
+
             if(id.is_array()){
                 ArrayIdent aid = (ArrayIdent)id;
                 add_symbol(typ, aid.name, aid.size, SymbolRole.VAR);

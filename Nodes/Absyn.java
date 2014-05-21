@@ -77,6 +77,7 @@ public class Absyn {
         }
         return null;
     }
+    static public boolean is_func = false;
 
     // Symbol table
     static public ArrayList<SymbolTable> sym_table_arr = new ArrayList<SymbolTable>();

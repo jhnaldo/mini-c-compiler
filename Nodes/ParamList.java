@@ -53,6 +53,12 @@ public class ParamList extends Absyn {
         for(Param p : arr){
             Type typ = p.typ;
             Ident id = p.ident;
+
+            if(cur_sym_table.hash.containsKey(id.name)){
+                System.err.println("[SemanticError]:"+id.start.str()+":Parameter "+id.name+" is already defiend");
+                System.exit(0);
+            }
+
             if(id.is_array()){
                 ArrayIdent aid = (ArrayIdent)id;
                 add_symbol(typ, aid.name, aid.size, SymbolRole.PARAM);

@@ -44,6 +44,7 @@ public class DeclList extends Absyn {
         }
         dl.start = start;
         dl.end = end;
+        is_func = false;
         return dl;
     }
 }

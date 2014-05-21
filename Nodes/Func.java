@@ -58,6 +58,7 @@ public class Func extends Absyn {
 
         Func f = new Func();
         if(params!=null) f.params = params.semantic_analysis();
+        is_func = true;
         f.comp_stmt = comp_stmt.semantic_analysis();
         f.typ=typ;
         f.name=name;
