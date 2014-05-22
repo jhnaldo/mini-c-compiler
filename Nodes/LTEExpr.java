@@ -13,9 +13,10 @@ public class LTEExpr extends BinaryExpr {
     }
 
     public LTEExpr semantic_analysis(){
-        LTEExpr me = new LTEExpr(null, null, start, end);
-        me.left_expr = left_expr.semantic_analysis();
-        me.right_expr = right_expr.semantic_analysis();
-        return me;
+        LTEExpr e = new LTEExpr(null, null, start, end);
+        e.left_expr = left_expr.semantic_analysis();
+        e.right_expr = right_expr.semantic_analysis();
+        e.expr_check();
+        return e;
     }
 }

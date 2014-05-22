@@ -6,7 +6,7 @@ package Nodes;
 import java.util.*;
 import java.io.PrintWriter;
 
-public class Call extends Absyn {
+public class Call extends Expr {
     String name;
     ArgList args;
 
@@ -25,12 +25,54 @@ public class Call extends Absyn {
 
     public Call semantic_analysis(){
         Call c = new Call(name, null, start, end);
-        SymbolTable st = get_fun_table(name);
-        if(st==null){
-            System.err.println("[SemanticError]:"+start.str()+":function "+name+" is not defined");
-            System.exit(0);
+
+        // function existance check
+        FuncTable ft = get_fun_table(name);
+        if(ft==null) semantic_error(c,"Function "+name+" is not defined.");
+        if(args==null) return c;
+
+        c.args = new ArgList();
+        c.args.start = args.start;
+        c.args.end = args.end;
+
+        // argument size check
+        int arg_size = args.arr.size();
+        int param_size = ft.arr.size();
+        if(arg_size != param_size)
+            semantic_error(c,"The number of arguments of function "+name+" should be "+param_size);
+
+        // argument type check
+        for(int i=0; i<param_size; i++){
+            Expr arg = args.arr.get(i);
+            STElem param = ft.arr.get(i);
+
+            Expr _arg = arg.semantic_analysis();
+            if(param.is_array()){
+                // array type check
+                if(param.typ.typ == TypeName.INT && _arg.tn != TypeName.INT_ARR)
+                    semantic_error(_arg,"Argument"+(i+1)+" of the function "+name+" should have float array type.");
+                if(param.typ.typ == TypeName.FLOAT && _arg.tn != TypeName.FLOAT_ARR)
+                    semantic_error(_arg,"Argument"+(i+1)+" of the function "+name+" should have float array type.");
+            }else{
+                if(param.typ.typ == TypeName.INT && _arg.tn != TypeName.INT){
+                    if(_arg.tn == TypeName.FLOAT)
+                        semantic_warning(_arg,"This expression should have int type.");
+                    else
+                        semantic_error(_arg,"This expression should have int type.");
+                    _arg = new FloatToInt(_arg);
+                }
+                if(param.typ.typ == TypeName.FLOAT && _arg.tn != TypeName.FLOAT){
+                    if(_arg.tn == TypeName.INT)
+                        semantic_warning(_arg,"This expression should have int type.");
+                    else
+                        semantic_error(_arg,"This expression should have int type.");
+                    _arg = new IntToFloat(_arg);
+                }
+            }
+            c.args.add(_arg);
         }
-        c.args = args.semantic_analysis();
+        c.tn = ft.typ.typ;
+
         return c;
     }
 }

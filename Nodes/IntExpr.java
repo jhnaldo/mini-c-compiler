@@ -10,6 +10,7 @@ public class IntExpr extends Expr {
     Integer num;
 
     public IntExpr(Integer k, Pos s, Pos e){
+        tn = TypeName.INT;
         num = k;
         start = s;
         end = e;
@@ -17,5 +18,10 @@ public class IntExpr extends Expr {
 
     public void show_ast_c_ver(){
         writer.print(num);
+    }
+
+    public IntExpr semantic_analysis(){
+        tn = TypeName.INT;
+        return this;
     }
 }

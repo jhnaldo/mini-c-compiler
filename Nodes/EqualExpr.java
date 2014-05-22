@@ -13,9 +13,10 @@ public class EqualExpr extends BinaryExpr {
     }
 
     public EqualExpr semantic_analysis(){
-        EqualExpr me = new EqualExpr(null, null, start, end);
-        me.left_expr = left_expr.semantic_analysis();
-        me.right_expr = right_expr.semantic_analysis();
-        return me;
+        EqualExpr e = new EqualExpr(null, null, start, end);
+        e.left_expr = left_expr.semantic_analysis();
+        e.right_expr = right_expr.semantic_analysis();
+        e.expr_check();
+        return e;
     }
 }

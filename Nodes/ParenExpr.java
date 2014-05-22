@@ -19,4 +19,11 @@ public class ParenExpr extends Expr {
         expr.show_ast_c_ver();
         writer.print(")");
     }
+
+    public ParenExpr semantic_analysis(){
+        ParenExpr pe = new ParenExpr(null, start, end);
+        pe.expr = expr.semantic_analysis();
+        pe.tn = pe.expr.tn;
+        return pe;
+    }
 }

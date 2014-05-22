@@ -71,19 +71,26 @@ public class Absyn {
         }
         return null;
     }
-    static public SymbolTable get_fun_table(String name){
-        for(SymbolTable st : fun_table_arr){
+    static public FuncTable get_fun_table(String name){
+        for(FuncTable st : fun_table_arr){
             if(st.name.equals(name)) return st;
         }
         return null;
     }
     static public boolean is_func = false;
+    static public void semantic_error(Absyn node, String message){
+        System.err.println("[SemanticError]:<"+node.start.str()+"-"+node.end.str()+">:"+message);
+        System.exit(0);
+    }
+    static public void semantic_warning(Absyn node, String message){
+        System.err.println("[Warning]:<"+node.start.str()+"-"+node.end.str()+">:"+message);
+    }
 
     // Symbol table
     static public ArrayList<SymbolTable> sym_table_arr = new ArrayList<SymbolTable>();
-    static public ArrayList<SymbolTable> fun_table_arr = new ArrayList<SymbolTable>();
+    static public ArrayList<FuncTable> fun_table_arr = new ArrayList<FuncTable>();
     static public SymbolTable cur_sym_table = null;
-    static public SymbolTable cur_fun_table = null;
+    static public FuncTable cur_fun_table = null;
     static public ArrayList<String> cur_func_name = new ArrayList<String>();
     static public Integer sym_count = 0;
     static public Integer comp_count = 0;
@@ -103,7 +110,7 @@ public class Absyn {
     static public void add_symbol(Type t, String n, SymbolRole s){
         switch(s){
             case PARAM:
-                cur_fun_table.add(n, t, -1, s);
+                cur_fun_table.add(t, -1, s);
             case VAR:
                 cur_sym_table.add(n, t, -1, s);
         }
@@ -111,7 +118,7 @@ public class Absyn {
     static public void add_symbol(Type t, String n, Integer k, SymbolRole s){
         switch(s){
             case PARAM:
-                cur_fun_table.add(n, t, k, s);
+                cur_fun_table.add(t, k, s);
             case VAR:
                 cur_sym_table.add(n, t, k, s);
         }

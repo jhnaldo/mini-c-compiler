@@ -26,11 +26,14 @@ public class ArrayIdExpr extends Expr {
     public ArrayIdExpr semantic_analysis(){
         ArrayIdExpr aie = new ArrayIdExpr(name, null, start, end);
         STElem ste = get_sym_table_elem(name);
-        if(ste == null){
-            System.err.println("[SemanticError]:"+start.str()+":Variable "+name+" is not defined");
-            System.exit(0);
-        }
+        if(ste == null)
+            semantic_error(aie,"Variable "+name+" is not defined.");
+        if(!ste.is_array())
+            semantic_error(aie,"Variable "+name+" is not array type.");
         aie.expr = expr.semantic_analysis();
+        if(aie.expr.tn != TypeName.INT)
+            semantic_error(expr,"Array subscript of variable "+name+" should have int type.");
+        aie.tn = ste.typ.typ;
         return aie;
     }
 }

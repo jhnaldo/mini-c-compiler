@@ -22,6 +22,7 @@ public class CallExpr extends Expr {
     public CallExpr semantic_analysis(){
         CallExpr ce = new CallExpr(null, start, end);
         ce.call = call.semantic_analysis();
+        ce.tn = ce.call.tn;
         return ce;
     }
 }

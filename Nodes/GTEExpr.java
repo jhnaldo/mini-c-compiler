@@ -13,9 +13,10 @@ public class GTEExpr extends BinaryExpr {
     }
 
     public GTEExpr semantic_analysis(){
-        GTEExpr me = new GTEExpr(null, null, start, end);
-        me.left_expr = left_expr.semantic_analysis();
-        me.right_expr = right_expr.semantic_analysis();
-        return me;
+        GTEExpr e = new GTEExpr(null, null, start, end);
+        e.left_expr = left_expr.semantic_analysis();
+        e.right_expr = right_expr.semantic_analysis();
+        e.expr_check();
+        return e;
     }
 }

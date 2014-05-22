@@ -32,14 +32,4 @@ public class ArgList extends Absyn {
             e.show_ast_c_ver();
         }
     }
-
-    public ArgList semantic_analysis(){
-        ArgList al = new ArgList();
-        for(Expr e : arr){
-            al.add(e.semantic_analysis());
-        }
-        al.start = start;
-        al.end = end;
-        return al;
-    }
 }

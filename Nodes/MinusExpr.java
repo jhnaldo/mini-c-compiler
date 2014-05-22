@@ -13,9 +13,10 @@ public class MinusExpr extends BinaryExpr {
     }
 
     public MinusExpr semantic_analysis(){
-        MinusExpr me = new MinusExpr(null, null, start, end);
-        me.left_expr = left_expr.semantic_analysis();
-        me.right_expr = right_expr.semantic_analysis();
-        return me;
+        MinusExpr e = new MinusExpr(null, null, start, end);
+        e.left_expr = left_expr.semantic_analysis();
+        e.right_expr = right_expr.semantic_analysis();
+        e.expr_check();
+        return e;
     }
 }

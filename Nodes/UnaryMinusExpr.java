@@ -15,6 +15,10 @@ public class UnaryMinusExpr extends UnaryExpr {
     public UnaryMinusExpr semantic_analysis(){
         UnaryMinusExpr ume = new UnaryMinusExpr(null, start, end);
         ume.expr = expr.semantic_analysis();
+        if(ume.expr.tn!=TypeName.INT && ume.expr.tn!=TypeName.FLOAT){
+            semantic_error(ume,"This expression should have int or float type.");
+        }
+        ume.tn = ume.expr.tn;
         return ume;
     }
 }

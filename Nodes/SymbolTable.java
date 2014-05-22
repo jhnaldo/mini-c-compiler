@@ -19,17 +19,22 @@ public class SymbolTable {
         STElem ste = new STElem(t,len,s);
         hash.put(name,ste);
     }
+}
 
-    public void display(PrintWriter writer){
-        writer.println(name);
-        Iterator it = hash.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            writer.printf("%30s",pairs.getKey());
-            STElem ste = (STElem)pairs.getValue();
-            ste.display(writer);
-            it.remove();
-        }
+class FuncTable {
+    String name;
+    Type typ;
+    ArrayList<STElem> arr;
+
+    public FuncTable(String _name, Type _typ) {
+        name = _name;
+        typ = _typ;
+        arr = new ArrayList<STElem>();
+    }
+
+    public void add(Type t, int len, SymbolRole s) {
+        STElem ste = new STElem(t,len,s);
+        arr.add(ste);
     }
 }
 

@@ -50,11 +50,10 @@ public class Func extends Absyn {
 
     public Func semantic_analysis(){
         sym_table_arr.add(new SymbolTable(name));
-        fun_table_arr.add(new SymbolTable(name));
+        fun_table_arr.add(new FuncTable(name, typ));
         cur_sym_table = sym_table_arr.get(sym_table_arr.size()-1);
         cur_fun_table = fun_table_arr.get(fun_table_arr.size()-1);
         SymbolTable temp_sym_table = cur_sym_table;
-        SymbolTable temp_fun_table = cur_fun_table;
 
         Func f = new Func();
         if(params!=null) f.params = params.semantic_analysis();

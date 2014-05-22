@@ -2,7 +2,8 @@ int SIZE;
 int MAX_ITER;
 
 float multiple_real(float A[2], float B[2]){
-    return A[0]*B[0]-A[1]*B[1];
+    float a;
+    return a+A[0]*B[0]-A[1]*B[1];
 }
 
 float multiple_image(float A[2], float B[2]){
@@ -48,7 +49,7 @@ int main(){
 
     for(i=0;i<SIZE;i=i+1){
         for(j=0;j<SIZE;j=j+1){
-            current[0] = dividing_point(topleft[0],buttomright[0],i);
+            current[0] = dividing_point(topleft[0],buttomright[0],1.0);
             current[1] = dividing_point(topleft[1],buttomright[1],j);
             show_value( many_depth(current) );
         }
