@@ -40,12 +40,13 @@ public class Assign extends Absyn {
         if(index!=null){
             as.index = index.semantic_analysis();
             if(!ste.is_array())
-                semantic_error(this,"Variable "+name+" should have array type.");
+                semantic_error(this,"Variable "+name+" is not array type.");
             if(as.index.tn != TypeName.INT)
                 semantic_error(as.index,"Index of array variable should have int type.");
         }else{
-            if(ste.is_array())
-                semantic_error(this,"Variable "+name+" should have int or float type.");
+            if(ste.is_array()){
+                semantic_error(this,"Variable "+name+" should have array format in assign statement.");
+            }
         }
 
         if(ste.typ.typ != as.expr.tn){
