@@ -23,6 +23,7 @@ public class RetStmt extends Stmt {
 
     public RetStmt semantic_analysis(){
         RetStmt rs = new RetStmt(null, start, end);
+        if(expr==null) semantic_error(rs,"Return of function should have expression.");
         rs.expr = expr.semantic_analysis();
 
         TypeName fun_typ = cur_fun_table.typ.typ;
