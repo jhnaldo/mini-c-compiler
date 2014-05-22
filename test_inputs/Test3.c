@@ -49,7 +49,7 @@ int main(){
 
     for(i=0;i<SIZE;i=i+1){
         for(j=0;j<SIZE;j=j+1){
-            current[0] = dividing_point(topleft[0],buttomright[0],1.0);
+            current[0] = dividing_point(topleft[0],buttomright[0],i);
             current[1] = dividing_point(topleft[1],buttomright[1],j);
             show_value( many_depth(current) );
         }

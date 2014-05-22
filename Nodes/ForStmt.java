@@ -48,6 +48,8 @@ public class ForStmt extends Stmt {
         ForStmt f = new ForStmt(null,null,null,null,start,end);
         f.initial = initial.semantic_analysis();
         f.condition = condition.semantic_analysis();
+        if(f.condition.tn != TypeName.INT && f.condition.tn != TypeName.FLOAT)
+            semantic_error(f.condition,"Condition of for-statement should have int type.");
         f.incl = incl.semantic_analysis();
         f.stmt = stmt.semantic_analysis();
         return f;

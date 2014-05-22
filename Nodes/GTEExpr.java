@@ -17,6 +17,7 @@ public class GTEExpr extends BinaryExpr {
         e.left_expr = left_expr.semantic_analysis();
         e.right_expr = right_expr.semantic_analysis();
         e.expr_check();
+        e.tn = TypeName.INT;
         return e;
     }
 }

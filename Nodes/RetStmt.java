@@ -24,6 +24,26 @@ public class RetStmt extends Stmt {
     public RetStmt semantic_analysis(){
         RetStmt rs = new RetStmt(null, start, end);
         rs.expr = expr.semantic_analysis();
+
+        TypeName fun_typ = cur_fun_table.typ.typ;
+        TypeName expr_typ = rs.expr.tn;
+        if(fun_typ != expr_typ){
+            String t;
+            if(fun_typ == TypeName.INT) t = "int";
+            else t = "float";
+            switch(expr_typ){
+                case INT:
+                    semantic_warning(rs.expr,"Return of function "+cur_fun_table.name+" should have "+t+" type.");
+                    rs.expr = new IntToFloat(rs.expr);
+                    break;
+                case FLOAT:
+                    semantic_warning(rs.expr,"Return of function "+cur_fun_table.name+" should have "+t+" type.");
+                    rs.expr = new FloatToInt(rs.expr);
+                    break;
+                default:
+                    semantic_error(rs.expr,"Return of function "+cur_fun_table.name+" should have "+t+" type.");
+            }
+        }
         return rs;
     }
 }

@@ -55,6 +55,8 @@ public class WhileStmt extends Stmt {
     public WhileStmt semantic_analysis(){
         WhileStmt w = new WhileStmt(null, null, null, start, end);
         w.expr = expr.semantic_analysis();
+        if(w.expr.tn != TypeName.INT && w.expr.tn != TypeName.FLOAT)
+            semantic_error(w.expr,"Condition of while-statement should have int type.");
         w.stmt = stmt.semantic_analysis();
         w.is_do = is_do;
         return w;

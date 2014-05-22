@@ -57,6 +57,8 @@ public class IfStmt extends Stmt {
     public IfStmt semantic_analysis(){
         IfStmt f = new IfStmt(null, null, null, start, end);
         f.condition = condition.semantic_analysis();
+        if(f.condition.tn != TypeName.INT && f.condition.tn != TypeName.FLOAT)
+            semantic_error(f.condition,"Condition of if- statement should have int type.");
         f.then_stmt = then_stmt.semantic_analysis();
         if(else_stmt!=null) f.else_stmt = else_stmt.semantic_analysis();
         return f;
