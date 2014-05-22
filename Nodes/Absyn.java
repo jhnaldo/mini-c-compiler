@@ -79,11 +79,17 @@ public class Absyn {
     }
     static public boolean is_func = false;
     static public void semantic_error(Absyn node, String message){
-        System.err.println("[SemanticError]:<"+node.start.str()+"-"+node.end.str()+">:"+message);
+        if(node == null)
+            System.err.println("[SemanticError]:"+message);
+        else
+            System.err.println("[SemanticError]:<"+node.start.str()+"-"+node.end.str()+">:"+message);
         System.exit(0);
     }
     static public void semantic_warning(Absyn node, String message){
-        System.err.println("[Warning]:<"+node.start.str()+"-"+node.end.str()+">:"+message);
+        if(node == null)
+            System.err.println("[Warning]:"+message);
+        else
+            System.err.println("[Warning]:<"+node.start.str()+"-"+node.end.str()+">:"+message);
     }
 
     // Symbol table

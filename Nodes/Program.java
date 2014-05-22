@@ -45,6 +45,11 @@ public class Program extends Absyn {
         p.end = end;
 
         sym_table_arr.remove(temp_sym_table);
+
+        // main function check
+        if(get_fun_table("main")==null)
+            semantic_error(null,"Program should have main function");
+
         return p;
     }
 }

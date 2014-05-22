@@ -49,6 +49,12 @@ public class Func extends Absyn {
     }
 
     public Func semantic_analysis(){
+        // redefine check
+        if(get_fun_table(name)!=null)
+            semantic_error(this,"Redefine function "+name+".");
+        if(sym_table_arr.get(0).hash.containsKey(name))
+            semantic_error(this,"Duplicated function "+name+" with global variable.");
+
         sym_table_arr.add(new SymbolTable(name));
         fun_table_arr.add(new FuncTable(name, typ));
         cur_sym_table = sym_table_arr.get(sym_table_arr.size()-1);
