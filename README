@@ -66,8 +66,12 @@ ArgList         := Expr \(, Expr\)\*
 *** I modified the condition and loop production rule for removing dangling else problem with loop
 *** I modified the switch case rule for representing the default case
 
+########################    SEMANTIC CHECK    #######################
 
+    - Warning (Type Conversion) -
 
+        int to float : __int2float__
+        float to int : __float2int__
 
 ##########################     RESULT     ###########################
 
