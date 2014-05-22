@@ -33,12 +33,34 @@ public class Assign extends Absyn {
         Assign as = new Assign(name, null, null, start, end);
 
         STElem ste = get_sym_table_elem(name);
-        if(ste == null){
-            System.err.println("[SemanticError]:"+start.str()+":Variable "+name+" is not defined");
-            System.exit(0);
-        }
-        if(index!=null) as.index = index.semantic_analysis();
+        if(ste == null)
+            semantic_error(this,"Variable "+name+" is not defined.");
+
         as.expr = expr.semantic_analysis();
+        if(index!=null){
+            as.index = index.semantic_analysis();
+            if(!ste.is_array())
+                semantic_error(this,"Variable "+name+" shoubld have array type.");
+            if(as.index.tn != TypeName.INT)
+                semantic_error(as.index,"Index of array variable should have int type.");
+        }
+        if(ste.typ.typ != as.expr.tn){
+            String t;
+            if(ste.typ.typ == TypeName.INT) t = "int";
+            else t = "float";
+            switch(as.expr.tn){
+                case INT:
+                    semantic_warning(as.expr,"Expression should have "+t+" type.");
+                    as.expr = new IntToFloat(as.expr);
+                    break;
+                case FLOAT:
+                    semantic_warning(as.expr,"Expression should have "+t+" type.");
+                    as.expr = new FloatToInt(as.expr);
+                    break;
+                default:
+                    semantic_error(as.expr,"Expression should have "+t+" type.");
+            }
+        }
 
         return as;
     }
