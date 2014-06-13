@@ -61,10 +61,15 @@ public class Decl extends Absyn {
 
             if(id.is_array()){
                 ArrayIdent aid = (ArrayIdent)id;
-                add_symbol(typ, aid.name, aid.size, SymbolRole.VAR);
+                writer.println("    ADD   SP@ 1 VR("+(block_idx+1)+")");
+                writer.println("    ADD   SP@ "+aid.size+" SP");
+                push("VR("+(block_idx+1)+")@");
+                rel_pos+=aid.size;
+                add_symbol(typ, aid.name, aid.size, SymbolRole.VAR, rel_pos-1);
             }else{
                 SingleIdent sid = (SingleIdent)id;
-                add_symbol(typ, sid.name, SymbolRole.VAR);
+                push(0);
+                add_symbol(typ, sid.name, SymbolRole.VAR, rel_pos-1);
             }
         }
 

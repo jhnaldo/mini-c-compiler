@@ -50,6 +50,7 @@ public class ParamList extends Absyn {
 
     public ParamList semantic_analysis(){
         ParamList pl = new ParamList();
+        int k = -arr.size();
         for(Param p : arr){
             Type typ = p.typ;
             Ident id = p.ident;
@@ -61,11 +62,12 @@ public class ParamList extends Absyn {
 
             if(id.is_array()){
                 ArrayIdent aid = (ArrayIdent)id;
-                add_symbol(typ, aid.name, aid.size, SymbolRole.PARAM);
+                add_symbol(typ, aid.name, aid.size, SymbolRole.PARAM, k);
             }else{
                 SingleIdent sid = (SingleIdent)id;
-                add_symbol(typ, sid.name, SymbolRole.PARAM);
+                add_symbol(typ, sid.name, SymbolRole.PARAM, k);
             }
+            k++;
         }
         pl.arr = arr;
         pl.start = start;

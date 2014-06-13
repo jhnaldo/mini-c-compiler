@@ -38,6 +38,7 @@ clean:
 	-rm Yylex.java
 	-rm parser.java
 	-rm sym.java
+	-rm out.T
 
 vclean:
 	-find . -name "*.class" -exec rm -rf {} \;
@@ -45,3 +46,4 @@ vclean:
 	-rm Yylex.java
 	-rm parser.java
 	-rm sym.java
+	-rm out.T

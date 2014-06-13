@@ -22,6 +22,7 @@ public class IntExpr extends Expr {
 
     public IntExpr semantic_analysis(){
         tn = TypeName.INT;
+        writer.println("    MOVE  "+num+" VR(0)");
         return this;
     }
 }

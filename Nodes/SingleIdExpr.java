@@ -23,6 +23,8 @@ public class SingleIdExpr extends Expr {
         STElem ste = get_sym_table_elem(name);
         if(ste == null)
             semantic_error(this,"Variable "+name+" is not defined.");
+        ste.get_T(writer);
+        writer.println("    MOVE  MEM(VR(0)@)@ VR(0)");
         if(ste.is_array()){
             if(ste.typ.typ == TypeName.INT)
                 tn = TypeName.INT_ARR;

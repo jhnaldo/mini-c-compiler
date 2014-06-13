@@ -113,20 +113,28 @@ public class Absyn {
         }
         writer.println("     count      type                          name     array      role");
     }
-    static public void add_symbol(Type t, String n, SymbolRole s){
+    static public void add_symbol(Type t, String n, SymbolRole s, int rel_pos){
         switch(s){
             case PARAM:
-                cur_fun_table.add(t, -1, s);
+                cur_fun_table.add(t, -1, s, rel_pos);
             case VAR:
-                cur_sym_table.add(n, t, -1, s);
+                if(cur_sym_table.name.equals("GLOBAL")){
+                    cur_sym_table.add(n, t, -1, SymbolRole.GLOBAL, rel_pos);
+                }else{
+                    cur_sym_table.add(n, t, -1, s, rel_pos);
+                }
         }
     }
-    static public void add_symbol(Type t, String n, Integer k, SymbolRole s){
+    static public void add_symbol(Type t, String n, Integer k, SymbolRole s, int rel_pos){
         switch(s){
             case PARAM:
-                cur_fun_table.add(t, k, s);
+                cur_fun_table.add(t, k, s, rel_pos);
             case VAR:
-                cur_sym_table.add(n, t, k, s);
+                if(cur_sym_table.name.equals("GLOBAL")){
+                    cur_sym_table.add(n, t, k, SymbolRole.GLOBAL, rel_pos);
+                }else{
+                    cur_sym_table.add(n, t, k, s, rel_pos);
+                }
         }
     }
     static public void show_symbol(Type t, String n, SymbolRole s){
@@ -170,5 +178,20 @@ public class Absyn {
                 break;
         }
         writer.printf("%10d%10s%30s%10d%10s\n",sym_count,tn,n,k,sn);
+    }
+
+    // compile
+    static public int rel_pos = 1;
+    static public int block_idx = 0;
+    static public int label_num = 1;
+    static public void push(String value){
+        writer.println("    ADD   SP@ 1 SP");
+        writer.println("    MOVE  "+value+" MEM(SP@)");
+        rel_pos++;
+    }
+    static public void push(int value){
+        writer.println("    ADD   SP@ 1 SP");
+        writer.println("    MOVE  "+value+" MEM(SP@)");
+        rel_pos++;
     }
 }

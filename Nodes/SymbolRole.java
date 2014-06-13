@@ -7,5 +7,5 @@ import java.util.*;
 import java.io.PrintWriter;
 
 public enum SymbolRole{
-    VAR, PARAM;
+    VAR, PARAM, GLOBAL;
 }

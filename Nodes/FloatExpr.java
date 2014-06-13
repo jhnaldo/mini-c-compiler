@@ -22,6 +22,7 @@ public class FloatExpr extends Expr {
 
     public FloatExpr semantic_analysis(){
         tn = TypeName.FLOAT;
+        writer.println("    MOVE  "+num+" VR(0)");
         return this;
     }
 }

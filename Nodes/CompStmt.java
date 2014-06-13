@@ -37,8 +37,15 @@ public class CompStmt extends Stmt{
         SymbolTable temp_sym_table = cur_sym_table;
 
         CompStmt cp = new CompStmt(null, null, start, end);
-        if(decls!=null) cp.decls = decls.semantic_analysis();
-        cp.stmts = stmts.semantic_analysis();
+        if(decls!=null){
+            int cur_rel_pos = rel_pos;
+            cp.decls = decls.semantic_analysis();
+            cp.stmts = stmts.semantic_analysis();
+            writer.println("    ADD   SP@ "+(cur_rel_pos-rel_pos)+" SP");
+            rel_pos = cur_rel_pos;
+        }else{
+            cp.stmts = stmts.semantic_analysis();
+        }
 
         sym_table_arr.remove(temp_sym_table);
         return cp;

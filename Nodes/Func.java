@@ -49,6 +49,9 @@ public class Func extends Absyn {
     }
 
     public Func semantic_analysis(){
+        rel_pos = 1;
+        writer.println("LAB "+name);
+
         // redefine check
         if(get_fun_table(name)!=null)
             semantic_error(this,"Redefine function "+name+".");

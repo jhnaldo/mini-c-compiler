@@ -79,7 +79,7 @@ base ::=
                     Absyn.writer = null;
                 }
 
-                Absyn.writer = new PrintWriter("table2.txt", "UTF-8");
+                Absyn.writer = new PrintWriter("out.T", "UTF-8");
                 p = p.semantic_analysis();
                 Absyn.writer.close();
                 Absyn.writer = null;
