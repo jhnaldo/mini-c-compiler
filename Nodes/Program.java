@@ -38,6 +38,34 @@ public class Program extends Absyn {
         cur_sym_table = sym_table_arr.get(sym_table_arr.size()-1);
         SymbolTable temp_sym_table = cur_sym_table;
 
+        for(Func f : funcs.arr){
+            // redefine check
+            if(get_fun_table(f.name)!=null)
+                semantic_error(this,"Redefine function "+f.name+".");
+            if(sym_table_arr.get(0).hash.containsKey(f.name))
+                semantic_error(this,"Duplicated function "+f.name+" with global variable.");
+            FuncTable ft = new FuncTable(f.name, f.typ);
+
+            fun_table_arr.add(ft);
+
+            if(f.params!=null){
+                int k = -(f.params.arr.size()+1);
+                for(Param p : f.params.arr){
+                    Type typ = p.typ;
+                    Ident id = p.ident;
+
+                    if(id.is_array()){
+                        ArrayIdent aid = (ArrayIdent)id;
+                        ft.add(typ, aid.size, SymbolRole.PARAM, k);
+                    }else{
+                        SingleIdent sid = (SingleIdent)id;
+                        ft.add(typ, -1, SymbolRole.PARAM, k);
+                    }
+                    k++;
+                }
+            }
+        }
+
         writer.println("    AREA  SP");
         writer.println("    AREA  FP");
         writer.println("    AREA  VR");

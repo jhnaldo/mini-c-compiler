@@ -72,8 +72,8 @@ public class Absyn {
         return null;
     }
     static public FuncTable get_fun_table(String name){
-        for(FuncTable st : fun_table_arr){
-            if(st.name.equals(name)) return st;
+        for(FuncTable ft : fun_table_arr){
+            if(ft.name.equals(name)) return ft;
         }
         return null;
     }
@@ -114,27 +114,17 @@ public class Absyn {
         writer.println("     count      type                          name     array      role");
     }
     static public void add_symbol(Type t, String n, SymbolRole s, int rel_pos){
-        switch(s){
-            case PARAM:
-                cur_fun_table.add(t, -1, s, rel_pos);
-            case VAR:
-                if(cur_sym_table.name.equals("GLOBAL")){
-                    cur_sym_table.add(n, t, -1, SymbolRole.GLOBAL, rel_pos);
-                }else{
-                    cur_sym_table.add(n, t, -1, s, rel_pos);
-                }
+        if(cur_sym_table.name.equals("GLOBAL")){
+            cur_sym_table.add(n, t, -1, SymbolRole.GLOBAL, rel_pos);
+        }else{
+            cur_sym_table.add(n, t, -1, s, rel_pos);
         }
     }
     static public void add_symbol(Type t, String n, Integer k, SymbolRole s, int rel_pos){
-        switch(s){
-            case PARAM:
-                cur_fun_table.add(t, k, s, rel_pos);
-            case VAR:
-                if(cur_sym_table.name.equals("GLOBAL")){
-                    cur_sym_table.add(n, t, k, SymbolRole.GLOBAL, rel_pos);
-                }else{
-                    cur_sym_table.add(n, t, k, s, rel_pos);
-                }
+        if(cur_sym_table.name.equals("GLOBAL")){
+            cur_sym_table.add(n, t, k, SymbolRole.GLOBAL, rel_pos);
+        }else{
+            cur_sym_table.add(n, t, k, s, rel_pos);
         }
     }
     static public void show_symbol(Type t, String n, SymbolRole s){

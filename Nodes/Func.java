@@ -52,16 +52,9 @@ public class Func extends Absyn {
         rel_pos = 1;
         writer.println("LAB "+name);
 
-        // redefine check
-        if(get_fun_table(name)!=null)
-            semantic_error(this,"Redefine function "+name+".");
-        if(sym_table_arr.get(0).hash.containsKey(name))
-            semantic_error(this,"Duplicated function "+name+" with global variable.");
-
         sym_table_arr.add(new SymbolTable(name));
-        fun_table_arr.add(new FuncTable(name, typ));
         cur_sym_table = sym_table_arr.get(sym_table_arr.size()-1);
-        cur_fun_table = fun_table_arr.get(fun_table_arr.size()-1);
+        cur_fun_table = get_fun_table(name);
         SymbolTable temp_sym_table = cur_sym_table;
 
         Func f = new Func();
