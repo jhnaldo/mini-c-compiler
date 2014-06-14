@@ -47,11 +47,19 @@ public class ForStmt extends Stmt {
     public ForStmt semantic_analysis(){
         ForStmt f = new ForStmt(null,null,null,null,start,end);
         f.initial = initial.semantic_analysis();
+        int cond_label_num = label_num++;
+        writer.println("LAB _L"+cond_label_num);
+
         f.condition = condition.semantic_analysis();
-        if(f.condition.tn != TypeName.INT && f.condition.tn != TypeName.FLOAT)
+        int end_label_num = label_num++;
+        writer.println("    JMPZ  VR(0)@ _L"+end_label_num);
+
+        if(f.condition.tn != TypeName.INT)
             semantic_error(f.condition,"Condition of for-statement should have int type.");
-        f.incl = incl.semantic_analysis();
         f.stmt = stmt.semantic_analysis();
+        f.incl = incl.semantic_analysis();
+        writer.println("    JMP   _L"+cond_label_num);
+        writer.println("LAB _L"+end_label_num);
         return f;
     }
 }

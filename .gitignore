@@ -7,3 +7,4 @@ result
 Yylex.java
 parser.java
 sym.java
+out.T

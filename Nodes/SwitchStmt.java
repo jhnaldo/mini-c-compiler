@@ -68,9 +68,42 @@ public class SwitchStmt extends Stmt {
             System.err.println("[SemanticError]:"+ident.start.str()+":Variable "+name+" is not defined");
             System.exit(0);
         }
+        ste.get_T(writer);
+        writer.println("    MOVE  MEM(VR(0)@)@ VR(0)");
+
+        int cur_label_num = label_num;
         ss.ident = ident.semantic_analysis();
-        ss.cases = cases.semantic_analysis();
-        ss.default_stmt = default_stmt.semantic_analysis();
+        if(default_stmt!=null){
+            block_idx++;
+            int default_label_num = cur_label_num++;
+            int case_label_num = cur_label_num;
+            label_num++;
+            for(CaseStmt cs : cases.arr){
+                case_label_num++;
+                writer.println("    SUB   VR(0)@ "+cs.num+" VR("+block_idx+")");
+                writer.println("    JMPZ  VR("+block_idx+")@ _L"+case_label_num);
+            }
+            block_idx--;
+            writer.println("    JMP   _L"+default_label_num);
+            ss.cases = cases.semantic_analysis();
+            writer.println("LAB _L"+default_label_num);
+            ss.default_stmt = default_stmt.semantic_analysis();
+            writer.println("LAB _L"+cur_label_num);
+        }else{
+            block_idx++;
+            int case_label_num = cur_label_num;
+            for(CaseStmt cs : cases.arr){
+                case_label_num++;
+                writer.println("    SUB   VR(0)@ "+cs.num+" VR("+block_idx+")");
+                writer.println("    JMPZ  VR("+block_idx+")@ _L"+case_label_num);
+            }
+            block_idx--;
+            writer.println("    JMP   _L"+cur_label_num);
+            ss.cases = cases.semantic_analysis();
+            ss.default_stmt = null;
+            writer.println("LAB _L"+cur_label_num);
+        }
+        label_num++;
         return ss;
     }
 }

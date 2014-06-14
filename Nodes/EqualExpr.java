@@ -21,6 +21,22 @@ public class EqualExpr extends BinaryExpr {
         e.right_expr = right_expr.semantic_analysis();
         e.expr_check();
         if(tn == TypeName.FLOAT){
+            writer.println("    FSUB  VR("+block_idx+")@ VR(0)@ VR("+(block_idx+1)+")");
+            writer.println("    FADD  VR("+(block_idx+1)+")@ 1.0 VR("+(block_idx+1)+")");
+            writer.println("    F2I   VR("+(block_idx+1)+")@ VR("+(block_idx+1)+")");
+            writer.println("    SUB   VR("+(block_idx+1)+")@ 1 VR("+(block_idx+1)+")");
+
+            writer.println("    FSUB  VR(0)@ VR("+block_idx+")@ VR("+(block_idx+2)+")");
+            writer.println("    FADD  VR("+(block_idx+2)+")@ 1.0 VR("+(block_idx+2)+")");
+            writer.println("    F2I   VR("+(block_idx+2)+")@ VR("+(block_idx+2)+")");
+            writer.println("    SUB   VR("+(block_idx+2)+")@ 1 VR("+(block_idx+2)+")");
+
+            writer.println("    MOVE  0 VR("+block_idx+")");
+            writer.println("    JMPN  VR("+(block_idx+1)+")@ _L"+label_num);
+            writer.println("    JMPN  VR("+(block_idx+2)+")@ _L"+label_num);
+            writer.println("    MOVE  1 VR("+block_idx+")");
+            writer.println("LAB _L"+label_num);
+            writer.println("    MOVE  VR("+block_idx+")@ VR(0)");
         }else{
             writer.println("    SUB   VR("+block_idx+")@ VR(0)@ VR(0)");
             writer.println("    MOVE  1 VR("+block_idx+")");

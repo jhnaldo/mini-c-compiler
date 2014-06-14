@@ -8,12 +8,16 @@ int abc(int a, int b[4])
 
 int main()
 {
-    int k[2];
-    k[0] = 1;
-    if(1==0){
-        printf(1);
-    }else{
-        printf(2);
+    scanf(k);
+    switch(k){
+        case 0:
+            printf(-2);
+            break;
+        case 1:
+            printf(3+4);
+            break;
+        default:
+            printf(2);
     }
     return 0;
 }

@@ -22,6 +22,9 @@ public class GTEExpr extends BinaryExpr {
         e.expr_check();
         if(tn == TypeName.FLOAT){
             writer.println("    FSUB  VR("+block_idx+")@ VR(0)@ VR(0)");
+            writer.println("    FADD  VR(0)@ 1.0 VR(0)");
+            writer.println("    F2I   VR(0)@ VR(0)");
+            writer.println("    SUB   VR(0)@ 1 VR(0)");
         }else{
             writer.println("    SUB   VR("+block_idx+")@ VR(0)@ VR(0)");
         }

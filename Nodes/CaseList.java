@@ -43,8 +43,17 @@ public class CaseList extends Absyn {
 
     public CaseList semantic_analysis(){
         CaseList cl = new CaseList(start, end);
+
+        int cur_label_num = label_num++;
+        int case_label_num = cur_label_num;
+        label_num += arr.size();
         for(CaseStmt c : arr){
+            case_label_num++;
+            writer.println("LAB _L"+case_label_num);
             cl.add(c.semantic_analysis());
+            if(c.has_break){
+                writer.println("    JMP   _L"+cur_label_num);
+            }
         }
         return cl;
     }

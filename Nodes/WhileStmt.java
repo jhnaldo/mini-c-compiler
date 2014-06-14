@@ -53,11 +53,26 @@ public class WhileStmt extends Stmt {
     }
 
     public WhileStmt semantic_analysis(){
+        int start_label_num = label_num++;
+        int end_label_num = label_num++;
+
         WhileStmt w = new WhileStmt(null, null, null, start, end);
-        w.expr = expr.semantic_analysis();
-        if(w.expr.tn != TypeName.INT && w.expr.tn != TypeName.FLOAT)
-            semantic_error(w.expr,"Condition of while-statement should have int type.");
-        w.stmt = stmt.semantic_analysis();
+
+        writer.println("LAB _L"+start_label_num);
+        if(is_do){
+            w.stmt = stmt.semantic_analysis();
+            w.expr = expr.semantic_analysis();
+            writer.println("    JMPZ  VR(0)@ _L"+end_label_num);
+        }else{
+            w.expr = expr.semantic_analysis();
+            writer.println("    JMPZ  VR(0)@ _L"+end_label_num);
+            w.stmt = stmt.semantic_analysis();
+        }
+        writer.println("    JMP   _L"+start_label_num);
+        writer.println("LAB _L"+end_label_num);
+
+        if(w.expr.tn != TypeName.INT)
+            semantic_error(w.expr,"Condition of do-while-statement should have int type.");
         w.is_do = is_do;
         return w;
     }

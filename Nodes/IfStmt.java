@@ -58,7 +58,7 @@ public class IfStmt extends Stmt {
         IfStmt f = new IfStmt(null, null, null, start, end);
         f.condition = condition.semantic_analysis();
         writer.println("    JMPZ  VR(0)@ _L"+label_num);
-        if(f.condition.tn != TypeName.INT && f.condition.tn != TypeName.FLOAT)
+        if(f.condition.tn != TypeName.INT)
             semantic_error(f.condition,"Condition of if-statement should have int type.");
         f.then_stmt = then_stmt.semantic_analysis();
         if(else_stmt!=null){
