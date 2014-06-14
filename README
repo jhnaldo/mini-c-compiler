@@ -78,3 +78,6 @@ ArgList         := Expr \(, Expr\)\*
     Production Rule :   prod.txt
     C-style AST     :   tree.txt
     Symbol Table    :   table.txt
+    Final result    :   out.T
+
+#####################################################################
