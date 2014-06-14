@@ -71,6 +71,11 @@ public class Func extends Absyn {
         f.typ=typ;
         f.name=name;
 
+        writer.println("    MOVE  FP@ SP");
+        writer.println("    MOVE  MEM(FP@)@ FP");
+        writer.println("    SUB   SP@ 1 SP");
+        writer.println("    JMP   MEM(SP@)@");
+
         sym_table_arr.remove(temp_sym_table);
         return f;
     }

@@ -194,4 +194,8 @@ public class Absyn {
         writer.println("    MOVE  "+value+" MEM(SP@)");
         rel_pos++;
     }
+    static public void pop(String value){
+        writer.println("    MOVE  MEM(SP@)@ "+value);
+        writer.println("    SUB   SP@ 1 SP");
+    }
 }
