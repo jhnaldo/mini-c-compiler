@@ -50,6 +50,8 @@ public class Program extends Absyn {
 
         Program p = new Program();
         if(decls!=null) p.decls = decls.semantic_analysis();
+        push("END");
+        push(0);
         writer.println("    MOVE  SP@ FP");
         writer.println("    JMP   main");
         if(funcs!=null) p.funcs = funcs.semantic_analysis();

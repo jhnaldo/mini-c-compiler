@@ -57,20 +57,24 @@ public class IfStmt extends Stmt {
     public IfStmt semantic_analysis(){
         IfStmt f = new IfStmt(null, null, null, start, end);
         f.condition = condition.semantic_analysis();
-        writer.println("    JMPZ  VR(0)@ _L"+label_num);
+
         if(f.condition.tn != TypeName.INT)
             semantic_error(f.condition,"Condition of if-statement should have int type.");
-        f.then_stmt = then_stmt.semantic_analysis();
         if(else_stmt!=null){
-            writer.println("    JMP   _L"+(label_num+1));
-            writer.println("LAB _L"+label_num);
+            int else_label_num = label_num++;
+            int end_label_num = label_num++;
+            writer.println("    JMPZ  VR(0)@ _L"+else_label_num);
+            f.then_stmt = then_stmt.semantic_analysis();
+            writer.println("    JMP   _L"+end_label_num);
+            writer.println("LAB _L"+else_label_num);
             f.else_stmt = else_stmt.semantic_analysis();
-            writer.println("LAB _L"+(label_num+1));
-            label_num++;
+            writer.println("LAB _L"+end_label_num);
         }else{
-            writer.println("LAB _L"+label_num);
+            int end_label_num = label_num++;
+            writer.println("    JMPZ  VR(0)@ _L"+end_label_num);
+            f.then_stmt = then_stmt.semantic_analysis();
+            writer.println("LAB _L"+end_label_num);
         }
-        label_num++;
         return f;
     }
 }

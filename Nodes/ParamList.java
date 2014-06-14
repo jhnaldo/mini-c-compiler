@@ -50,7 +50,7 @@ public class ParamList extends Absyn {
 
     public ParamList semantic_analysis(){
         ParamList pl = new ParamList();
-        int k = -arr.size();
+        int k = -(arr.size()+1);
         for(Param p : arr){
             Type typ = p.typ;
             Ident id = p.ident;

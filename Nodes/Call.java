@@ -80,9 +80,10 @@ public class Call extends Expr {
                 if(param.is_array()){
                     // array type check
                     if(param.typ.typ == TypeName.INT && _arg.tn != TypeName.INT_ARR)
-                        semantic_error(_arg,"Argument"+(i+1)+" of the function "+name+" should have float array type.");
+                        semantic_error(_arg,"Argument"+(i+1)+" of the function "+name+" should have int array type.");
                     if(param.typ.typ == TypeName.FLOAT && _arg.tn != TypeName.FLOAT_ARR)
                         semantic_error(_arg,"Argument"+(i+1)+" of the function "+name+" should have float array type.");
+                    push("VR(0)@");
                 }else{
                     if(param.typ.typ == TypeName.INT && _arg.tn != TypeName.INT){
                         if(_arg.tn == TypeName.FLOAT)
@@ -90,6 +91,7 @@ public class Call extends Expr {
                         else
                             semantic_error(_arg,"This expression should have int type.");
                         _arg = new FloatToInt(_arg);
+                        writer.println("    F2I   VR(0)@ VR(0)");
                     }
                     if(param.typ.typ == TypeName.FLOAT && _arg.tn != TypeName.FLOAT){
                         if(_arg.tn == TypeName.INT)
@@ -97,10 +99,19 @@ public class Call extends Expr {
                         else
                             semantic_error(_arg,"This expression should have int type.");
                         _arg = new IntToFloat(_arg);
+                        writer.println("    I2F   VR(0)@ VR(0)");
                     }
+                    push("VR(0)@");
                 }
                 c.args.add(_arg);
             }
+            int ret_label_num = label_num++;
+            push("_L"+ret_label_num);
+            push("FP@");
+            writer.println("    MOVE  SP@ FP");
+            writer.println("    JMP   "+name);
+            writer.println("LAB _L"+ret_label_num);
+            writer.println("    SUB   SP@ "+param_size+" SP");
             c.tn = ft.typ.typ;
         }
 

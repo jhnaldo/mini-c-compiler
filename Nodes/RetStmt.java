@@ -26,6 +26,11 @@ public class RetStmt extends Stmt {
         if(expr==null) semantic_error(rs,"Return of function should have expression.");
         rs.expr = expr.semantic_analysis();
 
+        writer.println("    MOVE  FP@ SP");
+        writer.println("    MOVE  MEM(FP@)@ FP");
+        writer.println("    SUB   SP@ 1 SP");
+        writer.println("    JMP   MEM(SP@)@");
+
         TypeName fun_typ = cur_fun_table.typ.typ;
         TypeName expr_typ = rs.expr.tn;
         if(fun_typ != expr_typ){
